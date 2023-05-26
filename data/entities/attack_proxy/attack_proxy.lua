@@ -238,7 +238,7 @@ local make_recipes = function(entity)
 
   local map_color = entity.map_color or { r = 0.869, g = 0.5, b = 0.130, a = 0.5 }
   for k = 1, shared.variation_count do
-    make_drone(entity.name..shared.drone_name..k, map_color, entity.localised_name or {"entity-name."..entity.name})
+    make_drone(entity.name.."-"..shared.drone_name.."-"..k, map_color, entity.localised_name or {"entity-name."..entity.name})
   end
 end
 

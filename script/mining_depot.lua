@@ -8,7 +8,6 @@ local path_queue_rate = 13
 local mining_depot = {}
 local depot_metatable = {__index = mining_depot}
 local variation_count = shared.variation_count
-local default_bot_name = names.drone_name
 
 local script_data =
 {
@@ -368,7 +367,7 @@ function mining_depot:spawn_drone()
     return
   end
 
-  local name = self.target_resource_name..names.drone_name..random(variation_count)
+  local name = self.target_resource_name.."-"..names.drone_name.."-"..random(variation_count)
 
   local entity = self.entity
   local spawn_entity_data =
@@ -1061,7 +1060,7 @@ end
 local box, mask
 local get_box_and_mask = function()
   if not (box and mask) then
-    local prototype = game.entity_prototypes[default_bot_name]
+    local prototype = game.entity_prototypes[names.drone_name]
     box = prototype.collision_box
     mask = prototype.collision_mask
   end
