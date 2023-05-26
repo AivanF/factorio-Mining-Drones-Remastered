@@ -19,6 +19,16 @@ data:extend({
         order = "1-01",
     },
     {
+        type = "int-setting",
+        name = "af-mining-drones-capacity",
+        setting_type = "startup",
+        localised_name = "Max number of drones in a depot, 10-2000, default 100",
+        minimum_value = 10,
+        maximum_value = 2000,
+        default_value = 100,
+        order = "1-03",
+    },
+    {
         type = "bool-setting",
         name = "af-mining-drones-sep-prod",
         setting_type = "startup",

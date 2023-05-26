@@ -25,7 +25,7 @@ data.depots =
   ["mining-depot"] =
   {
     radius = 25 + 0.5,
-    capacity = 100,
+    capacity = settings.startup["af-mining-drones-capacity"].value,
     drop_offset = {0, -3.5},
     shifts =
     {
