@@ -17,7 +17,7 @@ local script_data =
   request_queue = {},
   big_migration = true,
   reset_corpses = true,
-  clear_wall_migration = true
+  clear_wall_migration = true,
 }
 
 local get_mining_depot = function(unit_number)
@@ -962,7 +962,8 @@ function mining_depot:add_mining_target(entity, ignore_self)
   target_data.mining = target_data.mining - 1
 
   if target_data.mining < 0 then
-    error("HUHEKR?")
+    target_data.mining = 0
+    -- error("HUHEKR?")
   end
 
   for depot_index, bool in pairs(target_data.depots) do
@@ -1212,6 +1213,29 @@ lib.on_load = function()
 end
 
 lib.on_configuration_changed = function()
+  -- Migrate from other mod v1
+  if #script_data.depots == 0 then 
+    script_data.big_migration = false
+    script_data.reset_corpses = false
+    script_data.clear_wall_migration = false
+    local depot_count = 0
+    local drone_count = 0
+    for _, surface in pairs (game.surfaces) do
+      for _, entity in pairs (surface.find_entities_filtered{name=names.mining_depot}) do
+        mining_depot.new(entity)
+        depot_count = depot_count + 1
+      end
+      for _, entity in pairs (surface.find_entities_filtered{type="unit"}) do
+        if entity.name:find(names.drone_name, 1, true) then
+          entity.destroy()
+          drone_count = drone_count + 1
+        end
+      end
+    end
+    txt = "Migration to Mining Drones v2 by AivanF: " .. depot_count .. " depots, " .. drone_count .. " drones & proxies."
+    game.print(txt)
+    log(txt)
+  end
 
   if not script_data.big_migration then
     script_data.big_migration = true
