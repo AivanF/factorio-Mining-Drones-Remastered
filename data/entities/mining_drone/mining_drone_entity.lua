@@ -56,11 +56,11 @@ local make_drone = function(name, tint, item)
     type = "unit",
     name = bot_name,
     localised_name = {"", {"mining-drone"}, " (", item or "eh", ")"},
-    icon = "__Mining_Drones__/data/icons/mining_drone.png",
+    icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
     icon_size = 64,
     icons = {
       {
-        icon = "__Mining_Drones__/data/icons/mining_drone.png",
+        icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
         icon_size = 64,
       }
     },

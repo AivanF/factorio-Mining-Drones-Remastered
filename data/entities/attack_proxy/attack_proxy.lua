@@ -38,7 +38,7 @@ local shifts = shared.depots["mining-depot"].shifts
 
 local duration = 70
 local size = 768
-local particle_path = "__Mining_Drones__/data/entities/mining_depot/Scene_layer-particle"
+local particle_path = "__Mining_Drones_Remastered__/data/entities/mining_depot/Scene_layer-particle"
 
 local particle_stripes = function(direction)
   local stripes = {}
@@ -99,7 +99,7 @@ end
 
 
 local size = 768
-local particle_path = "__Mining_Drones__/data/entities/mining_depot/Scene_layer-particle"
+local particle_path = "__Mining_Drones_Remastered__/data/entities/mining_depot/Scene_layer-particle"
 
 local custom_resources = 
 {

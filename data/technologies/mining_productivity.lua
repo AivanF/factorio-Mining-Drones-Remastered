@@ -44,7 +44,7 @@ for k, ingredients in pairs (levels) do
     icons =
     {
       {
-        icon = "__Mining_Drones__/data/technologies/mining_drones_tech.png",
+        icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
         icon_size = 256,
         icon_mipmaps = 0,
       },
@@ -65,7 +65,7 @@ for k, ingredients in pairs (levels) do
         icons =
         {
           {
-            icon = "__Mining_Drones__/data/icons/mining_drone.png",
+            icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
             icon_size = 64,
             icon_mipmaps = 0,
           },
@@ -100,7 +100,7 @@ local infinite =
   icons =
   {
     {
-      icon = "__Mining_Drones__/data/technologies/mining_drones_tech.png",
+      icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
       icon_size = 256,
       icon_mipmaps = 0,
     },
@@ -121,7 +121,7 @@ local infinite =
       icons =
       {
         {
-          icon = "__Mining_Drones__/data/icons/mining_drone.png",
+          icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
           icon_size = 64,
           icon_mipmaps = 0,
         },

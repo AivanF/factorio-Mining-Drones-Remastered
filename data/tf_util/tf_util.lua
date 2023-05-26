@@ -138,7 +138,7 @@ util.base_player = function()
 end
 
 util.path = function(str)
-  return "__Mining_Drones__/" .. str
+  return "__Mining_Drones_Remastered__/" .. str
 end
 
 util.empty_sound = function()
