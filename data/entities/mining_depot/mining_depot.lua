@@ -381,7 +381,8 @@ local recipe =
   enabled = true,
   ingredients =
   {
-    {"iron-plate", 50},
+    {"iron-plate", 20},
+    {"iron-chest", 10},
     {"iron-gear-wheel", 10},
     {"iron-stick", 20},
   },

@@ -23,8 +23,7 @@ local technology_effects =
 }
 
 
-local on_research_finished = function(event)
-  local technology = event.research
+local review_technology = function(technology)
   local name = technology.name
 
   for effect_name, effect in pairs (technology_effects) do
@@ -34,6 +33,11 @@ local on_research_finished = function(event)
     end
   end
 
+end
+
+
+local on_research_finished = function(event)
+  review_technology(event.research)
 end
 
 local lib = {}
@@ -52,6 +56,14 @@ end
 
 lib.get_productivity_bonus = function(force_index)
   return script_data.productivity_bonus[force_index] or 0
+end
+
+lib.on_configuration_changed = function()
+  for _, force in pairs(game.forces) do
+    for _, technology in pairs(force.technologies) do
+      review_technology(technology)
+    end
+  end
 end
 
 lib.on_load = function()

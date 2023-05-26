@@ -41,6 +41,8 @@ for k, ingredients in pairs (levels) do
     name = name.."-"..k,
     localised_name = {name},
     type = "technology",
+    enabled = false,
+    prerequisites = {"mining-drone"},
     icons =
     {
       {
