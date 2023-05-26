@@ -36,6 +36,14 @@ data:extend({
         default_value = false,
         order = "1-04",
     },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-se-allow",
+        setting_type = "startup",
+        localised_name = "Allow to use mining drones in space",
+        default_value = true,
+        order = "1-05",
+    },
 
     -- Tweak vanilla
     {

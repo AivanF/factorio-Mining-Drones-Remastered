@@ -208,6 +208,7 @@ local mining_depot =
 {
   name = "mining-depot",
   type = "assembling-machine",
+  se_allow_in_space = settings.startup["af-mining-drones-se-allow"].value,
   collision_box = {{ -2.25, -3.75}, { 2.25, 3.75}},
   selection_box = {{ -2.5, -4}, { 2.5, 4}},
   --alert_icon_shift = { -0.09375, -0.375},
