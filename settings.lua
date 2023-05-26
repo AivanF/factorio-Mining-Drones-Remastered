@@ -1,6 +1,16 @@
 data:extend({
     -- Basic
     {
+        type = "double-setting",
+        name = "af-mining-drones-pollute-rate",
+        setting_type = "runtime-global",
+        localised_name = "Polluton rate per mine, 0.01-2.0, default 0.35",
+        minimum_value = 0.01,
+        maximum_value = 2.0,
+        default_value = 0.35,
+        order = "1-02",
+    },
+    {
         type = "bool-setting",
         name = "mute_drones",
         setting_type = "startup",
