@@ -258,23 +258,23 @@ local axe_mining_ore_trigger =
     {
       {
         filename = "__core__/sound/axe-mining-ore-1.ogg",
-        volume = 0.4
+        volume = 0.3
       },
       {
         filename = "__core__/sound/axe-mining-ore-2.ogg",
-        volume = 0.4
+        volume = 0.3
       },
       {
         filename = "__core__/sound/axe-mining-ore-3.ogg",
-        volume = 0.4
+        volume = 0.3
       },
       {
         filename = "__core__/sound/axe-mining-ore-4.ogg",
-        volume = 0.4
+        volume = 0.3
       },
       {
         filename = "__core__/sound/axe-mining-ore-5.ogg",
-        volume = 0.4
+        volume = 0.3
       }
     }
   }

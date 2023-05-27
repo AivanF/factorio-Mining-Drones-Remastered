@@ -814,6 +814,7 @@ end
 --self.potential[drone.desired_item][unique_index(target)] = target
 
 function mining_depot:order_drone(drone, entity)
+  -- game.print("MD2R order")
 
   if not self.mined_any then
     self.mined_any = true
@@ -1301,11 +1302,18 @@ lib.on_configuration_changed = function()
     log(txt)
   end
 
+  -- Clear texts with no references to prevent overlapping
+  local alive_labels = {}
+  for _, depot in pairs(script_data.depots) do
+    if depot.rendering then
+      alive_labels[depot.rendering] = true
+    end
+  end
   local removed_labels = 0
   local all_drawings = rendering.get_all_ids()
   for _, id in pairs(all_drawings) do
     local obj = rendering.get_target(id)
-    if obj and obj.entity and obj.entity.name == names.mining_depot then
+    if obj and obj.entity and obj.entity.name == names.mining_depot and not alive_labels[id] then
       rendering.destroy(id)
       removed_labels = removed_labels + 1
     end
