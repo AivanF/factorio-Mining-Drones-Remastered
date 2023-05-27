@@ -4,9 +4,9 @@
   "title": "Mining Drones 2 Remastered",
   "author": "AivanF",
   "contact": "",
-  "homepage": "",
-  "description": "Adds mining drones and mining depots",
-}
+  "homepage": "https://mods.factorio.com/mod/Mining_Drones_Remastered",
+  "description": "Adds mining drones and depots providing great yet cusomisible balance: robust drones recipe ingredients instead of pure iron, normal pollution rate, electric energy usage, and much more. Everything is configurable, check out mod Homepage  or startup and map settings ^_^",
+
   "factorio_version": "1.1",
   "dependencies": [
     "base >= 1.1.0", "? space-exploration", "(?) sniper-rifle-improved", "(?) IRobot",
