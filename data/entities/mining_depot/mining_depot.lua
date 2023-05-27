@@ -232,7 +232,7 @@ local mining_depot =
   {
     type = "void",
   },
-  energy_usage = "1MW",
+  energy_usage = "1W",
   fast_replaceable_group = "assembling-machine",
   flags =
   {
@@ -345,6 +345,7 @@ local mining_depot =
   working_visualisations = working_visualisations
 }
 
+local input_flow_limit = math.ceil(0.2 * settings.startup["af-mining-drones-capacity"].value)
 local depot_energy_interface = {
   type = "electric-energy-interface",
   name = "mining-depot-energy-interface",
@@ -355,10 +356,10 @@ local depot_energy_interface = {
 
   energy_source = {
     type = "electric",
-    emissions_per_minute = 1,
+    emissions_per_minute = 0,
     usage_priority = "secondary-input",
-    input_flow_limit = "5MW",
-    buffer_capacity = "5MJ",
+    input_flow_limit = input_flow_limit.."MW",
+    buffer_capacity = "0J",
     -- drain = "10kW",
   },
   energy_usage = "1W",

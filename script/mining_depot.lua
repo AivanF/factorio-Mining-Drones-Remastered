@@ -837,8 +837,9 @@ function mining_depot:order_drone(drone, entity)
       needed_fluid = (self.fluid.amount / 100) * mining_count
     end
     self:take_fluid(needed_fluid)
-    self:take_energy()
   end
+
+  self:take_energy()
 
   drone.entity.speed = self:get_drone_speed()
   drone:mine_entity(entity, mining_count)
@@ -858,7 +859,8 @@ function mining_depot:take_fluid(amount)
 end
 
 function mining_depot:take_energy()
-  energy_interface.energy = energy_interface.energy - energy_per_work
+  local energy_interface = self.energy_interface
+  energy_interface.energy = energy_interface.energy - get_energy_per_work()
 end
 
 function mining_depot:handle_order_request(drone)
@@ -960,10 +962,8 @@ function mining_depot:update_energy_usage()
   end
 
   if energy_per_work > 1 then
-    local required_buffer = math.max(self:get_active_drone_count(), 10) * energy_per_work
-    energy_interface.power_usage = math.ceil(energy_per_work * 2 / 60)
+    local required_buffer = math.max(self:get_drone_item_count(), 10) * energy_per_work
     energy_interface.electric_buffer_size = math.max(required_buffer, energy_interface.energy)
-    -- energy_interface.electric_drain = math.max(energy_per_work / 10, 10000)
   else
     energy_interface.power_usage = 0
     energy_interface.electric_buffer_size = 0
@@ -1279,6 +1279,7 @@ lib.on_configuration_changed = function()
     script_data.clear_wall_migration = false
     local depot_count = 0
     local drone_count = 0
+    local inter_count = 0
     for _, surface in pairs (game.surfaces) do
       for _, entity in pairs (surface.find_entities_filtered{name=names.mining_depot}) do
         mining_depot.new(entity)
@@ -1289,6 +1290,10 @@ lib.on_configuration_changed = function()
           entity.destroy()
           drone_count = drone_count + 1
         end
+      end
+      for _, entity in pairs (surface.find_entities_filtered{name="mining-depot-energy-interface"}) do
+        entity.destroy()
+        inter_count = inter_count + 1
       end
     end
     local txt = "MD2R: migration to v2 by AivanF: " .. depot_count .. " depots, " .. drone_count .. " drones & proxies."

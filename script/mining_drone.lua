@@ -467,7 +467,7 @@ function mining_drone:clear_mining_target()
 end
 
 function mining_drone:clear_depot()
-  if not self.depot then return end
+  if not self:get_depot() then return end
   self:get_depot().drones[self.unit_number] = nil
   self.depot = nil
 end
