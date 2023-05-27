@@ -11,7 +11,7 @@ local variation_count = shared.variation_count
 
 local script_data =
 {
-  depots = {},
+  depots = {},  -- unit_number => bucket => depot
   path_requests = {},
   targeted_resources = {},
   request_queue = {},
@@ -19,6 +19,10 @@ local script_data =
   reset_corpses = true,
   clear_wall_migration = true,
 }
+
+local get_energy_per_work = function()
+  return settings.global["af-mining-drones-work-energy"].value
+end
 
 local get_mining_depot = function(unit_number)
   local bucket = script_data.depots[unit_number % depot_update_rate]
@@ -209,6 +213,27 @@ function mining_depot:clear_wall()
   self.boxes = nil
 end
 
+function mining_depot:add_energy_interface()
+  if self.energy_interface and self.energy_interface.valid then
+    error("HUH")
+    return
+  end
+
+  self.energy_interface = self.entity.surface.create_entity
+  {
+    name = "mining-depot-energy-interface",
+    position = self.entity.position,
+    force = "neutral"
+  }
+end
+
+function mining_depot:remove_energy_interface()
+  if self.energy_interface and self.energy_interface.valid then
+    self.energy_interface.destroy()
+    self.energy_interface = nil
+  end
+end
+
 function mining_depot:add_corpse()
 
   if self.corpse and self.corpse.valid then
@@ -284,6 +309,7 @@ function mining_depot.new(entity)
     script_data.targeted_resources[depot.surface_index] = {}
   end
 
+  depot:add_energy_interface()
   depot:add_corpse()
   depot:add_spawn_corpse()
   depot:add_wall()
@@ -423,8 +449,8 @@ function mining_depot:update_sticker()
     scale = 1.5
   }
 
-
 end
+
 
 function mining_depot:cancel_all_orders()
   for unit_number, bool in pairs(self.drones) do
@@ -503,6 +529,7 @@ function mining_depot:update()
   if not item then return end
 
   self:update_pot()
+  self:update_energy_usage()
 
   if not self:has_mining_targets() then
     --Nothing to mine, nothing to do...
@@ -522,7 +549,7 @@ function mining_depot:update()
 
   end
 
-  if not self:has_enough_fluid() then
+  if not self:has_enough_fluid() or not self:has_enough_energy() then
     return
   end
 
@@ -605,13 +632,18 @@ function mining_depot:has_mining_targets()
   return next(self.recent) or next(self.potential)
 end
 
+function mining_depot:has_enough_energy()
+  local energy_interface = self.energy_interface
+  local energy_per_work = get_energy_per_work()
+  return energy_per_work < 1 or energy_interface and energy_interface.valid and energy_interface.energy > energy_per_work
+end
+
 function mining_depot:has_enough_fluid()
   if not self.fluid then return true end
   local box = self:get_input_fluidbox()
   if not box then return false end
 
   return box.amount >= (self.fluid.amount / 10)
-
 end
 
 function mining_depot:get_input_fluidbox()
@@ -808,6 +840,7 @@ function mining_depot:order_drone(drone, entity)
       needed_fluid = (self.fluid.amount / 100) * mining_count
     end
     self:take_fluid(needed_fluid)
+    self:take_energy()
   end
 
   drone.entity.speed = self:get_drone_speed()
@@ -827,6 +860,10 @@ function mining_depot:take_fluid(amount)
   self.entity.fluidbox[1] = box
 end
 
+function mining_depot:take_energy()
+  energy_interface.energy = energy_interface.energy - energy_per_work
+end
+
 function mining_depot:handle_order_request(drone)
 
   if not (drone.mining_target and drone.mining_target.valid) then
@@ -836,7 +873,10 @@ function mining_depot:handle_order_request(drone)
 
   local should_spawn_count = (self:get_should_spawn_drone_count(true))
 
-  if should_spawn_count <= 0 or not self:has_enough_fluid() then
+  if should_spawn_count <= 0
+      or not self:has_enough_fluid()
+      or not self:has_enough_energy()
+  then
     self:return_drone(drone)
     return
   end
@@ -889,13 +929,13 @@ function mining_depot:handle_path_request_finished(event)
   end
 
   if not (event.path and self.entity.valid) then
-    --we can't reach it, don't spawn any miners.
+    -- We can't reach it, don't spawn any miners
     self:add_mining_target(entity, true)
     return
   end
 
-  if not self:has_enough_fluid() then
-    --Dont have enough fluid to mine anything
+  if not self:has_enough_fluid() or not self:has_enough_energy() then
+    -- Don't have enough prerequisites to mine anything
     self:add_mining_target(entity)
     return
   end
@@ -903,13 +943,34 @@ function mining_depot:handle_path_request_finished(event)
   local drone = self:spawn_drone()
 
   if not drone then
-    --For some reason, we can't spawn a drone
+    -- For some reason, we can't spawn a drone
       self:add_mining_target(entity)
       return
   end
 
   self:order_drone(drone, entity)
 
+end
+
+function mining_depot:update_energy_usage()
+
+  local energy_interface = self.energy_interface
+  local energy_per_work = get_energy_per_work()
+
+  if not energy_interface or not energy_interface.valid then
+    self:add_energy_interface()
+    return
+  end
+
+  if energy_per_work > 1 then
+    local required_buffer = math.max(self:get_active_drone_count(), 10) * energy_per_work
+    energy_interface.power_usage = math.ceil(energy_per_work * 2 / 60)
+    energy_interface.electric_buffer_size = math.max(required_buffer, energy_interface.energy)
+    -- energy_interface.electric_drain = math.max(energy_per_work / 10, 10000)
+  else
+    energy_interface.power_usage = 0
+    energy_interface.electric_buffer_size = 0
+  end
 end
 
 local direction_name =
@@ -997,6 +1058,7 @@ end
 function mining_depot:handle_depot_deletion()
   self:cancel_all_orders()
   self.drones = nil
+  self:remove_energy_interface()
   self:remove_corpse()
   self:remove_spawn_corpse()
   self:clear_wall()
@@ -1262,6 +1324,8 @@ lib.on_configuration_changed = function()
           depot:handle_depot_deletion()
           bucket[unit_number] = nil
         else
+          depot:remove_energy_interface()
+          depot:add_energy_interface()
           depot:remove_corpse()
           depot:add_corpse()
           depot:remove_spawn_corpse()

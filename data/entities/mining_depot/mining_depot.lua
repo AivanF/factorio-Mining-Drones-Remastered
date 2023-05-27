@@ -206,29 +206,15 @@ local working_visualisations =
 
 local mining_depot =
 {
-  name = "mining-depot",
   type = "assembling-machine",
-  se_allow_in_space = settings.startup["af-mining-drones-se-allow"].value,
+  name = "mining-depot",
+  localised_name =  {"mining-depot"},
+  se_allow_in_space = settings.startup["af-mining-drones-red"].value,
   collision_box = {{ -2.25, -3.75}, { 2.25, 3.75}},
   selection_box = {{ -2.5, -4}, { 2.5, 4}},
   --alert_icon_shift = { -0.09375, -0.375},
   --entity_info_icon_shift = {0, -0.75},
   allowed_effects = {},
-  close_sound =
-  {
-    {
-      filename = "__base__/sound/machine-close.ogg",
-      volume = 0.5
-    }
-  },
-  old_collision_mask =
-  {
-    "item-layer",
-    "object-layer",
-    "water-tile",
-    "resource-layer",
-    "train-layer"
-  },
   corpse = "depot-corpse",
   crafting_categories = {"mining-depot"},
   crafting_speed = depots["mining-depot"].capacity - 1,
@@ -241,14 +227,12 @@ local mining_depot =
     type = "create-entity"
   },
   drawing_box = {{ -1.5, -1.7}, { 1.5, 1.5}},
-  dying_explosion = "assembling-machine-3-explosion",
+  scale_entity_info_icon = true,
   energy_source =
   {
-    emissions_per_second_per_watt = 0.1,
     type = "void",
-    usage_priority = "secondary-input"
   },
-  energy_usage = "1W",
+  energy_usage = "1MW",
   fast_replaceable_group = "assembling-machine",
   flags =
   {
@@ -283,17 +267,31 @@ local mining_depot =
   icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
   icon_size = 256,
   icon_mipmaps = 0,
-  localised_name =  {"mining-depot"},
-  max_health = 400,
   minable =
   {
     mining_time = 1,
     result = "mining-depot"
   },
+  max_health = 400,
+  resistances =
+  {
+    {
+      percent = 70,
+      type = "fire"
+    }
+  },
+  dying_explosion = "assembling-machine-3-explosion",
   open_sound =
   {
     {
       filename = "__base__/sound/machine-open.ogg",
+      volume = 0.5
+    }
+  },
+  close_sound =
+  {
+    {
+      filename = "__base__/sound/machine-close.ogg",
       volume = 0.5
     }
   },
@@ -308,14 +306,6 @@ local mining_depot =
       width = 10
     }
   },
-  resistances =
-  {
-    {
-      percent = 70,
-      type = "fire"
-    }
-  },
-  scale_entity_info_icon = true,
   vehicle_impact_sound =
   {
     {
@@ -353,6 +343,34 @@ local mining_depot =
     }
   },
   working_visualisations = working_visualisations
+}
+
+local depot_energy_interface = {
+  type = "electric-energy-interface",
+  name = "mining-depot-energy-interface",
+  localised_name = {"mining-depot"},
+  icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
+  icon_size = 256,
+  icon_mipmaps = 0,
+
+  energy_source = {
+    type = "electric",
+    emissions_per_minute = 1,
+    usage_priority = "secondary-input",
+    input_flow_limit = "5MW",
+    buffer_capacity = "5MJ",
+    -- drain = "10kW",
+  },
+  energy_usage = "1W",
+
+  collision_box = {{ -2.25, -3.75}, { 2.25, 3.75}},
+  collision_mask = {},
+  selectable_in_game = false,
+  remove_decoratives = false,
+  flags = {
+    "not-rotatable", "placeable-neutral", "placeable-off-grid", "hidden",
+    "not-blueprintable", "not-deconstructable", "not-flammable",
+  }
 }
 
 local item =
@@ -471,9 +489,10 @@ data:extend
   item,
   category,
   recipe,
+  depot_energy_interface,
   caution_corpse,
   box,
-  depot_corpse
+  depot_corpse,
 }
 
 --error(count)

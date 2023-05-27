@@ -1,5 +1,15 @@
 data:extend({
-    -- Basic
+    -- Map/global
+    {
+        type = "int-setting",
+        name = "af-mining-drones-work-energy",
+        setting_type = "runtime-global",
+        localised_name = "Electric energy per single mine work",
+        minimum_value = 0,
+        maximum_value = 10000000,
+        default_value = 500000,
+        order = "1-01",
+    },
     {
         type = "double-setting",
         name = "af-mining-drones-pollute-rate",
@@ -10,6 +20,8 @@ data:extend({
         default_value = 0.35,
         order = "1-02",
     },
+
+    -- Basic
     {
         type = "bool-setting",
         name = "mute_drones",
@@ -26,7 +38,7 @@ data:extend({
         minimum_value = 10,
         maximum_value = 2000,
         default_value = 100,
-        order = "1-03",
+        order = "1-02",
     },
     {
         type = "bool-setting",
@@ -34,7 +46,7 @@ data:extend({
         setting_type = "startup",
         localised_name = "Separate productivity research for drones",
         default_value = false,
-        order = "1-04",
+        order = "1-03",
     },
     {
         type = "bool-setting",
@@ -42,7 +54,7 @@ data:extend({
         setting_type = "startup",
         localised_name = "Allow to use mining drones in space",
         default_value = true,
-        order = "1-05",
+        order = "1-04",
     },
 
     -- Tweak vanilla
