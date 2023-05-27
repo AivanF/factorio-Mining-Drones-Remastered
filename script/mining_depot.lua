@@ -423,11 +423,8 @@ function mining_depot:spawn_drone()
   return drone
 end
 
-local draw_text = rendering.draw_text
-local destroy = rendering.destroy
 
 function mining_depot:update_sticker()
-
 
   if self.rendering and rendering.is_valid(self.rendering) then
     rendering.set_text(self.rendering, self:get_active_drone_count().."/"..self:get_drone_item_count())
@@ -436,7 +433,7 @@ function mining_depot:update_sticker()
 
   if not self.target_resource_name then return end
 
-  self.rendering = draw_text
+  self.rendering = rendering.draw_text
   {
     surface = self.surface_index,
     target = self.entity,
@@ -1294,8 +1291,23 @@ lib.on_configuration_changed = function()
         end
       end
     end
-    txt = "Migration to Mining Drones v2 by AivanF: " .. depot_count .. " depots, " .. drone_count .. " drones & proxies."
+    local txt = "MD2R: migration to v2 by AivanF: " .. depot_count .. " depots, " .. drone_count .. " drones & proxies."
     game.print(txt)
+    log(txt)
+  end
+
+  local removed_labels = 0
+  local all_drawings = rendering.get_all_ids()
+  for _, id in pairs(all_drawings) do
+    local obj = rendering.get_target(id)
+    if obj and obj.entity and obj.entity.name == names.mining_depot then
+      rendering.destroy(id)
+      removed_labels = removed_labels + 1
+    end
+  end
+  if removed_labels > 0 then
+    local txt = "MD2R: removed "..removed_labels.." labels."
+    -- game.print(txt)
     log(txt)
   end
 
