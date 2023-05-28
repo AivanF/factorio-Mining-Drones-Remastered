@@ -1223,14 +1223,18 @@ local cancel_all_depots = function()
   end
 end
 
-local rescan_all_depots = function()
-  local profiler = game.create_profiler()
+local rescan_all_depots = function(silent)
+  if not silent then
+    local profiler = game.create_profiler()
+  end
   for k, bucket in pairs (script_data.depots) do
     for unit_number, depot in pairs (bucket) do
       depot:find_potential_targets()
     end
   end
-  game.print{"", "Mining drones: Rescanned mining targets. ", profiler}
+  if not silent then
+    game.print{"", "Mining drones: Rescanned mining targets. ", profiler}
+  end
 end
 
 local reset_all_depots = function()
@@ -1250,44 +1254,7 @@ local clear_targeted_resources = function()
 end
 
 
-local lib = {}
-
-lib.events =
-{
-  [defines.events.on_built_entity] = on_built_entity,
-  [defines.events.on_robot_built_entity] = on_built_entity,
-  [defines.events.script_raised_revive] = on_built_entity,
-  [defines.events.script_raised_built] = on_built_entity,
-
-  [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
-
-  [defines.events.on_player_mined_entity] = on_entity_removed,
-  [defines.events.on_robot_mined_entity] = on_entity_removed,
-
-  [defines.events.on_entity_died] = on_entity_removed,
-  [defines.events.script_raised_destroy] = on_entity_removed,
-
-  [defines.events.on_tick] = on_tick
-
-}
-
-lib.on_init = function()
-  global.mining_depot = global.mining_depot or script_data
-end
-
-lib.on_load = function()
-  script_data = global.mining_depot or script_data
-  for k, bucket in pairs (script_data.depots) do
-    for unit_number, depot in pairs (bucket) do
-      setmetatable(depot, depot_metatable)
-    end
-  end
-  for path_request_id, depot in pairs (script_data.path_requests) do
-    setmetatable(depot, depot_metatable)
-  end
-end
-
-lib.on_configuration_changed = function()
+local update_configuration = function()
   -- Migrate from other mod v1
   if #script_data.depots == 0 then 
     script_data.big_migration = false
@@ -1421,8 +1388,69 @@ lib.on_configuration_changed = function()
 
 end
 
+
+local total_load = function()
+  script_data.depots = {}
+  update_configuration()
+end
+
+
+local lib = {}
+
+lib.events =
+{
+  [defines.events.on_built_entity] = on_built_entity,
+  [defines.events.on_robot_built_entity] = on_built_entity,
+  [defines.events.script_raised_revive] = on_built_entity,
+  [defines.events.script_raised_built] = on_built_entity,
+
+  [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
+
+  [defines.events.on_player_mined_entity] = on_entity_removed,
+  [defines.events.on_robot_mined_entity] = on_entity_removed,
+
+  [defines.events.on_entity_died] = on_entity_removed,
+  [defines.events.script_raised_destroy] = on_entity_removed,
+
+  [defines.events.on_tick] = on_tick
+
+}
+
+lib.on_init = function()
+  global.mining_depot = global.mining_depot or script_data
+end
+
+lib.on_load = function()
+  script_data = global.mining_depot or script_data
+  for k, bucket in pairs (script_data.depots) do
+    for unit_number, depot in pairs (bucket) do
+      setmetatable(depot, depot_metatable)
+    end
+  end
+  for path_request_id, depot in pairs (script_data.path_requests) do
+    setmetatable(depot, depot_metatable)
+  end
+end
+
+lib.on_configuration_changed = update_configuration
+
 lib.add_commands = function()
-  commands.add_command("mining-depots-rescan", "Forces all mining depots to cancel all orders and refresh their target list", reset_all_depots)
+  commands.add_command(
+    "mining-depots-rescan",
+    "Forces all mining depots to cancel all orders and refresh their target list",
+    reset_all_depots)
+end
+
+lib.add_commands = function()
+  commands.add_command(
+    "mining-depots-total-reset",
+    "Completely reloads the mod.",
+    total_load)
+end
+
+-- For remote interface
+lib.rescan_all_depots = function()
+  rescan_all_depots(true)
 end
 
 return lib

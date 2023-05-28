@@ -5,7 +5,10 @@ local interface =
 {
   get_drone_count = function()
     return mining_drone.get_drone_count()
-  end
+  end,
+  rescan_all_depots = function()
+    return mining_depot.rescan_all_depots()
+  end,
 }
 
 local lib = {}
