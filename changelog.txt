@@ -1,6 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 2023-05-29
+  Features:
+    - API support for Tiberium ore from "Factorio and Conquer: Tiberian Dawn" mod.
+  Changes:
+   - More stable energy consumption while satisfaction is 100%.
+---------------------------------------------------------------------------------------------------
 Version: 2.0.0
-Date: 2023-05-27
+Date: 2023-05-28
   Info:
     - Initial release by AivanF! Based on Mining Drones mod by Klonan.
   Features:
