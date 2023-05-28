@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.12
+Date: 2021-12-06
+  Changes:
+    - Fixed crash when used with Laser Fence mod
+---------------------------------------------------------------------------------------------------
+Version: 1.1.11
+Date: 2021-12-06
+  Changes:
+    - Published as separate mod to support API hooks for rescanning mineral fields, useful for mods that feature growing mineral fields, like Factorio and Conquer: Tiberian Dawn. 
+---------------------------------------------------------------------------------------------------
 Version: 1.1.10
 Date: 2021-03-09
   Changes:
