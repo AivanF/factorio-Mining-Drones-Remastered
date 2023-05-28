@@ -67,6 +67,7 @@ local get_mining_time = function(entity)
 
   time = entity.prototype.mineable_properties.mining_time
   mining_times[name] = time
+  -- mining_times[name] = time / (math.max((self:get_depot().powersource.energy / self:get_depot().powersource.electric_buffer_size), 0.1))
   return time
 
 end
@@ -95,6 +96,8 @@ end
 
 function mining_drone:get_mining_speed()
   return 0.5 * (1 + mining_technologies.get_mining_speed_bonus(self.force_index))
+  -- return 0.5 * (1 + mining_technologies.get_mining_speed_bonus(self.force_index)) * math.max((self:get_depot().powersource.energy / self:get_depot().powersource.electric_buffer_size), 0.1)
+  -- return (1 + mining_technologies.get_mining_speed_bonus(self.force_index)) * math.max((self:get_depot().powersource.energy / self:get_depot().powersource.electric_buffer_size), 0.1)
 end
 
 function mining_drone:make_attack_proxy()

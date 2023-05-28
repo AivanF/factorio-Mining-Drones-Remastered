@@ -264,6 +264,13 @@ function mining_depot:remove_spawn_corpse()
 end
 
 function mining_depot.new(entity)
+  local powersource = entity.surface.create_entity {
+    name = 'mining-depot-powersource',
+    position = entity.position,
+    force = entity.force
+  }
+
+  --powersource.destructable = false
 
   local depot =
   {
@@ -277,7 +284,8 @@ function mining_depot.new(entity)
     unit_number = entity.unit_number,
     item = nil,
     fluid = nil,
-    stack_count = nil
+    stack_count = nil,
+    powersource = powersource
   }
   setmetatable(depot, depot_metatable)
 
@@ -486,6 +494,9 @@ function mining_depot:add_no_items_alert(string)
 end
 
 local min = math.min
+local base_usage = 100000 / 60
+local speed_mod = 0
+local satisfaction = 0
 function mining_depot:update()
 
   --game.print(tostring(next(self.recent)))
@@ -504,6 +515,24 @@ function mining_depot:update()
   if not item then return end
 
   self:update_pot()
+
+  --
+  local power_usage = (self:get_active_drone_count() * (250000 / 60)) + base_usage
+  self.powersource.power_usage = power_usage
+  self.powersource.electric_buffer_size = power_usage
+
+  satisfaction = (self.powersource.energy / self.powersource.electric_buffer_size)
+  speed_mod = math.max(satisfaction, 0.5)
+
+  if self:get_active_drone_count() > math.floor(satisfaction * self:get_drone_item_count()) then
+    return
+  end
+  if self.powersource.energy < (self.powersource.electric_buffer_size * 0.5) then
+    return
+  end
+  --game.print("energy: " .. self.powersource.energy .. "  buffer_size: " .. self.powersource.electric_buffer_size)
+  --game.print("real satisfaction: " .. satisfaction)
+  --
 
   if not self:has_mining_targets() then
     --Nothing to mine, nothing to do...
@@ -570,11 +599,17 @@ function mining_depot:get_should_spawn_drone_count(extra)
   local current_target_item_count = math.min(productivity * target_amount_per_drone, max_target_amount) * max_drones
   local current_item_count = self:get_max_output_amount()
 
-  local ratio = 1 - ((current_item_count / current_target_item_count) ^ 2)
+  --local ratio = 1 - ((current_item_count / current_target_item_count) ^ 2)
+  local ratio = 1 - ((current_item_count / current_target_item_count) ^ 2) * satisfaction
   --self:say(ratio)
 
-  return math.min(math.ceil(ratio * max_drones) - active, math.ceil(depot_update_rate / path_queue_rate))
+  --
+  if self.powersource.energy < (self.powersource.electric_buffer_size * 0.5) then
+    ratio = 0
+  end
+  --
 
+  return math.min(math.ceil(ratio * max_drones) - active, math.ceil(depot_update_rate / path_queue_rate))
 end
 
 function mining_depot:say(text)
@@ -997,6 +1032,7 @@ end
 function mining_depot:handle_depot_deletion()
   self:cancel_all_orders()
   self.drones = nil
+  if self.powersource.valid then self.powersource.destroy() end
   self:remove_corpse()
   self:remove_spawn_corpse()
   self:clear_wall()

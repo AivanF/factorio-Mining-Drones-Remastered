@@ -204,6 +204,28 @@ local working_visualisations =
   }
 }
 
+local powersource =
+{
+  type = 'electric-energy-interface',
+  localised_name = { "mining-depot" },
+  energy_source = {
+    type = 'electric',
+    usage_priority = 'secondary-input',
+    buffer_capacity = '1J'
+  },
+  energy_usage = '1W',
+  collision_box = { { -2.25, -3.75 }, { 2.25, 3.75 } },
+  icon = '__Mining_Drones_Energized__/data/technologies/mining_drones_tech.png',
+  icon_size = 256,
+  icon_mipmaps = 0,
+  collision_mask = {},
+  selectable_in_game = false,
+  remove_decoratives = 'false',
+  name = 'mining-depot-powersource',
+  flags = { 'placeable-neutral', 'hidden', 'not-selectable-in-game', 'not-rotatable', 'not-flammable',
+    'placeable-off-grid' }
+}
+
 local mining_depot =
 {
   name = "mining-depot",
@@ -466,6 +488,7 @@ local depot_corpse =
 data:extend
 {
   mining_depot,
+  powersource,
   item,
   category,
   recipe,
