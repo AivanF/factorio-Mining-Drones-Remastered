@@ -39,10 +39,9 @@ for k, ingredients in pairs (levels) do
   local technology =
   {
     name = name.."-"..k,
-    localised_name = {name},
+    localised_name = {"technology-name."..name},
     type = "technology",
     enabled = false,
-    prerequisites = {"mining-drone"},
     icons =
     {
       {
@@ -116,7 +115,7 @@ for k, ingredients in pairs (levels) do
         }
       },
     },
-    prerequisites = k > 1 and {name.."-"..k - 1} or {},
+    prerequisites = k > 1 and {name.."-"..k - 1} or {"mining-drone"},
     unit =
     {
       count = k * 100,
@@ -134,7 +133,7 @@ local k = #levels + 1
 local infinite =
 {
   name = name.."-"..k,
-  localised_name = {name},
+  localised_name = {"technology-name."..name},
   type = "technology",
   icons =
   {

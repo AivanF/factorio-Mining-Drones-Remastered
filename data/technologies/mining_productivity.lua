@@ -41,10 +41,9 @@ if settings.startup["af-mining-drones-sep-prod"].value then
     local technology =
     {
       name = name.."-"..k,
-      localised_name = {name},
+      localised_name = {"technology-name."..name},
       type = "technology",
       enabled = false,
-      prerequisites = {"mining-drone"},
       icons =
       {
         {
@@ -99,7 +98,7 @@ if settings.startup["af-mining-drones-sep-prod"].value then
   local infinite =
   {
     name = name.."-"..k,
-    localised_name = {name},
+    localised_name = {"technology-name."..name},
     type = "technology",
     icons =
     {
@@ -138,7 +137,7 @@ if settings.startup["af-mining-drones-sep-prod"].value then
         }
       }
     },
-    prerequisites = k > 1 and {name.."-"..k - 1} or {},
+    prerequisites = k > 1 and {name.."-"..k - 1} or {"mining-drone"},
     unit =
     {
       count_formula = "(L-5)*2500",
