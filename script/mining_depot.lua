@@ -419,7 +419,7 @@ function mining_depot:update_sticker()
   if self.energy_interface and self.energy_interface.valid then
     satisfaction = 100 * self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
   end
-  if satisfaction < 97 then
+  if satisfaction < 98 then
     text = text.."\n"..floor(satisfaction).."%"
   end
   -- text = text.."\n"..floor(self.energy_interface.energy)
@@ -595,14 +595,14 @@ function mining_depot:get_should_spawn_drone_count(extra)
   local active = (self:get_active_drone_count() - (extra and 1 or 0)) + path_requests
 
   if get_energy_per_work() > 0 then
-    satisfaction = self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
+    satisfaction = self.energy_interface and self.energy_interface.valid and self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
   end
   if active >= max_drones then return 0 end
 
   local result = min(
     ceil(want * satisfaction) - active,
     ceil(depot_update_rate / path_queue_rate),
-    satisfaction < 0.6 and 0 or satisfaction < 1 and 1 or max_capacity
+    satisfaction < 0.6 and 0 or satisfaction < 0.98 and 1 or max_capacity
   )
   return result
 end
@@ -976,7 +976,7 @@ function mining_depot:update_energy_usage()
   end
 
   if energy_per_work > 1 then
-    local required_buffer = max(self:get_active_drone_count(), 10) * energy_per_work * 60 / 2
+    local required_buffer = (self:get_active_drone_count() + 10) *energy_per_work *60 *5
     energy_interface.electric_buffer_size = max(required_buffer, energy_interface.energy)
     energy_interface.power_usage = (5 + self:get_active_drone_count()) * energy_per_work
     -- energy_interface.power_usage = (5 + self:drones_want_to_have()) * energy_per_work
