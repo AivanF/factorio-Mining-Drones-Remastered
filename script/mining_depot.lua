@@ -22,7 +22,7 @@ local script_data =
 }
 
 local get_energy_per_work = function()
-  return math.floor(settings.global["af-mining-drones-work-energy"].value / 60)
+  return math.floor(settings.global["af-mining-drones-work-energy"].value * 1000 / 60)
 end
 
 local get_mining_depot = function(unit_number)

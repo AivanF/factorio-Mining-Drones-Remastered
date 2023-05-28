@@ -5,8 +5,8 @@ data:extend({
         name = "af-mining-drones-work-energy",
         setting_type = "runtime-global",
         minimum_value = 0,
-        maximum_value = 10000000,
-        default_value = 500000,
+        maximum_value = 10000,
+        default_value = 500,
         order = "1-01",
     },
     {
