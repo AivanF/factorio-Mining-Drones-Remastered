@@ -34,7 +34,7 @@ end
 local sprite_width = 768
 local sprite_height = 768
 local sprite_scale = 0.5
-local shifts = shared.depots["mining-depot"].shifts
+local shifts = shared.depot_info.shifts
 
 local duration = 70
 local size = 768

@@ -1,52 +1,66 @@
--- Collect settings
-local recipe_ingredients = {}
+local names = require("shared")
+
+-- Aggregate settings
+local depot_ingredients = {}
+local drone_ingredients = {}
 local need_logistics = false
 local need_chemistry = false
 local prerequisites = {"automation"}
 
 if settings.startup["af-mining-drones-gears"].value then
-    table.insert(recipe_ingredients, {"iron-gear-wheel", 5})
+    table.insert(depot_ingredients, {"iron-gear-wheel", 20})
+    table.insert(drone_ingredients, {"iron-gear-wheel", 5})
 end
 if settings.startup["af-mining-drones-sticks"].value then
-    table.insert(recipe_ingredients, {"iron-stick", 10})
+    table.insert(depot_ingredients, {"iron-stick", 20})
+    table.insert(drone_ingredients, {"iron-stick", 10})
 end
 if settings.startup["af-mining-drones-steel"].value then
-    table.insert(recipe_ingredients, {"steel-plate", 2})
+    table.insert(depot_ingredients, {"steel-plate", 20})
+    table.insert(depot_ingredients, {"steel-chest", 10})
+    table.insert(drone_ingredients, {"steel-plate", 2})
     table.insert(prerequisites, "steel-processing")
+else
+    table.insert(depot_ingredients, {"iron-plate", 20})
+    table.insert(depot_ingredients, {"iron-chest", 10})
 end
 if settings.startup["af-mining-drones-green"].value then
-    table.insert(recipe_ingredients, {"electronic-circuit", 1})
+    table.insert(depot_ingredients, {"electronic-circuit", 20})
+    table.insert(drone_ingredients, {"electronic-circuit", 2})
     table.insert(prerequisites, "electronics")
 end
 if settings.startup["af-mining-drones-red"].value then
-    table.insert(recipe_ingredients, {"advanced-circuit", 1})
+    table.insert(depot_ingredients, {"advanced-circuit", 20})
+    table.insert(drone_ingredients, {"advanced-circuit", 1})
     table.insert(prerequisites, "advanced-electronics")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-blue"].value then
-    table.insert(recipe_ingredients, {"processing-unit", 1})
+    table.insert(depot_ingredients, {"processing-unit", 10})
+    table.insert(drone_ingredients, {"processing-unit", 1})
     table.insert(prerequisites, "advanced-electronics-2")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-battery"].value then
-    table.insert(recipe_ingredients, {"battery", 1})
+    table.insert(depot_ingredients, {"battery", 10})
+    table.insert(drone_ingredients, {"battery", 1})
     table.insert(prerequisites, "battery")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-engine"].value then
-    table.insert(recipe_ingredients, {"engine-unit", 1})
+    table.insert(drone_ingredients, {"engine-unit", 1})
     table.insert(prerequisites, "engine")
     need_logistics = true
 end
 if settings.startup["af-mining-drones-elengine"].value then
-    table.insert(recipe_ingredients, {"electric-engine-unit", 1})
+    table.insert(drone_ingredients, {"electric-engine-unit", 1})
     table.insert(prerequisites, "electric-engine")
     need_chemistry = true
 end
 
-
--- Customise recipe
-data.raw.recipe["mining-drone"].ingredients = recipe_ingredients
+-- Customise recipes
+data.raw.recipe[names.mining_depot].ingredients = depot_ingredients
+data.raw.recipe[names.drone_name].ingredients = drone_ingredients
 
 -- Customise technology research
 local tech_ingredients = {
@@ -58,7 +72,9 @@ end
 if need_chemistry then
     table.insert(tech_ingredients, {"chemical-science-pack", 1})
 end
-data.raw.technology["mining-drone"].ingredients = tech_ingredients
+
+data.raw.technology[names.drone_name].prerequisites = prerequisites
+data.raw.technology[names.drone_name].unit.ingredients = tech_ingredients
 
 
 -- Optionally disable vanilla mining drills

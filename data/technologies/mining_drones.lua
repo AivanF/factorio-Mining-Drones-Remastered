@@ -1,4 +1,5 @@
-local technology = {
+-- Prerequisites and ingredients are set in customizer.lua
+data:extend{{
     name = "mining-drone",
     type = "technology",
     icons = {
@@ -26,5 +27,4 @@ local technology = {
         time = 30
     },
     order = name
-}
-data:extend{technology}
+}}

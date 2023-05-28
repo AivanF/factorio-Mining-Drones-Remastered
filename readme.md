@@ -16,13 +16,14 @@ You can mine any ore including modded ones and Uranium, by inputting the require
 You need to research a technology to unlock Drones and Depots.
 
 ### 2. Editable drones recipe
-Drones recipe is customasible by startup settings. Besides iron stick and gear wheels, there are the following optional ingredients:
+Drones recipe is customasible by startup settings. There are the following optional ingredients:
+- iron stick and gear wheels
 - steel plates
 - green / red / blue circuits
 - heat / electric engine
 - battery
 
-The cost of science packs and required dependencies of root technology will be updated with startup settings you pick. So, you can make Mining Drones an early- or late-game technology.
+Some of these will also affect depot's recipe. The cost of science packs and required dependencies of root technology will be updated with startup settings you pick. So, you can make Mining Drones an early-, mid- or late-game technology!
 
 ### 3. Pollution
 Mining drones produce pollution in accrodance with to vanilla drills. The amount can be adjusted by map settings, whether you prefer more or less pollution.

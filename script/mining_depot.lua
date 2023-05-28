@@ -3,12 +3,22 @@ local names = require("shared")
 local mining_drone = require("script/mining_drone")
 local mining_technologies = require("script/mining_technologies")
 
+
+local ceil = math.ceil
+local floor = math.floor
+local min = math.min
+local max = math.max
+local random = math.random
+
+local target_amount_per_drone = 100
+local max_target_amount = 65000 / 250
 local depot_update_rate = 60
 local path_queue_rate = 13
+local max_capacity = settings.startup["af-mining-drones-capacity"].value
+local variation_count = shared.variation_count
+
 local mining_depot = {}
 local depot_metatable = {__index = mining_depot}
-local variation_count = shared.variation_count
-local max_capacity = settings.startup["af-mining-drones-capacity"].value
 
 local script_data =
 {
@@ -22,7 +32,7 @@ local script_data =
 }
 
 local get_energy_per_work = function()
-  return math.floor(settings.global["af-mining-drones-work-energy"].value * 1000 / 60)
+  return floor(settings.global["af-mining-drones-work-energy"].value * 1000 / 60)
 end
 
 local get_mining_depot = function(unit_number)
@@ -43,38 +53,23 @@ local get_main_product = function(entity)
 
 end
 
-local min = math.min
-local floor = math.floor
-local random = math.random
-local ceil = math.ceil
-
 function mining_depot:get_mining_count(entity)
   local bonus = mining_technologies.get_cargo_size_bonus(self.force_index)
   return min(3 + random(2 + bonus), entity.amount)
 end
 
-local offsets = {}
 local radius_offsets = {}
-for name, depot in pairs (shared.depots) do
-  local offset = {depot.drop_offset[1], depot.drop_offset[2]}
-  local depot_offset = {}
-  local radius_offset = {}
-  local shifts = depot.shifts
-  depot_offset[defines.direction.north] = {offset[1] + shifts["north"][1], offset[2] + shifts["north"][2]}
-  depot_offset[defines.direction.south] = {-offset[1] + shifts["south"][1], -offset[2] + shifts["south"][2]}
-  depot_offset[defines.direction.east] = {-offset[2] + shifts["east"][1], -offset[1] + shifts["east"][2]}
-  depot_offset[defines.direction.west] = {offset[2] + shifts["west"][1], offset[1] + shifts["west"][2]}
-  offsets[name] = depot_offset
+local offset = {shared.depot_info.drop_offset[1], shared.depot_info.drop_offset[2]}
+local radius_offset = {}
+local shifts = shared.depot_info.shifts
 
-  radius_offset[defines.direction.north] = {offset[1], offset[2] - 0.5}
-  radius_offset[defines.direction.south] = {-offset[1], -offset[2] + 0.5}
-  radius_offset[defines.direction.east] = {-offset[2] + 0.5, -offset[1]}
-  radius_offset[defines.direction.west] = {offset[2] - 0.5, offset[1]}
-  radius_offsets[name] = radius_offset
-end
+radius_offset[defines.direction.north] = {offset[1], offset[2] - 0.5}
+radius_offset[defines.direction.south] = {-offset[1], -offset[2] + 0.5}
+radius_offset[defines.direction.east] = {-offset[2] + 0.5, -offset[1]}
+radius_offset[defines.direction.west] = {offset[2] - 0.5, offset[1]}
+radius_offsets[shared.mining_depot] = radius_offset
 
-local custom_drop_offsets =
-{
+local custom_drop_offsets = {
   [0] = {0, 0.5},
   [2] = {0, 0.5},
   [4] = {0, -0.5},
@@ -118,14 +113,7 @@ local box_name = "mining-depot-collision-box"
 local render_player_index = 42069
 
 function mining_depot:add_wall()
-  --if true then return end
   local direction = self.entity.direction
-  --local box = collide_box()
-  --local position = self.entity.position
-  --box.left_top.x = position.x + box.left_top.x + wall_padding
-  --box.right_bottom.x = position.x + box.right_bottom.x - wall_padding
-  --box.left_top.y = position.y + box.left_top.y + wall_padding
-  --box.right_bottom.y = position.y + box.right_bottom.y - wall_padding
   local box = self.entity.bounding_box
   if direction == 0 then
     box.left_top.y = box.left_top.y + 1
@@ -353,7 +341,6 @@ function mining_depot:get_drop_position()
   return position
 end
 
-local random = math.random
 local get_speed_variance = function()
   return (1 + (random() - 0.5) / 3)
 end
@@ -426,20 +413,28 @@ end
 
 
 function mining_depot:update_sticker()
-  local satisfaction = 100 * self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
   local text = self:get_active_drone_count().."/"..self:get_drone_item_count()
-  if satisfaction < 97 then
-    text = text.."\n"..math.floor(satisfaction).."%"
-  end
-  -- text = text.."\n"..math.floor(self.energy_interface.energy)
 
+  local satisfaction = 100
+  if self.energy_interface and self.energy_interface.valid then
+    satisfaction = 100 * self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
+  end
+  if satisfaction < 97 then
+    text = text.."\n"..floor(satisfaction).."%"
+  end
+  -- text = text.."\n"..floor(self.energy_interface.energy)
+
+  if not self.target_resource_name then
+    text = ""
+  end
+
+  -- Update old one
   if self.rendering and rendering.is_valid(self.rendering) then
     rendering.set_text(self.rendering, text)
     return
   end
 
-  if not self.target_resource_name then return end
-
+  -- Make new one
   self.rendering = rendering.draw_text
   {
     surface = self.surface_index,
@@ -514,7 +509,7 @@ function mining_depot:add_no_items_alert(string)
   }
 end
 
-local min = math.min
+
 function mining_depot:update()
 
   --game.print(tostring(next(self.recent)))
@@ -561,13 +556,6 @@ function mining_depot:update()
 
 end
 
-local ceil = math.ceil
-local floor = math.floor
-local min = math.min
-local spawn_damping_ratio = 0.2
-local target_amount_per_drone = 100
-local max_target_amount = 65000 / 250
-
 function mining_depot:get_full_ratio()
 
   local current_item_count = self:get_max_output_amount()
@@ -575,7 +563,7 @@ function mining_depot:get_full_ratio()
 
   local max_drones = self:get_drone_item_count()
   local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
-  local current_target_item_count = math.min(productivity * target_amount_per_drone, max_target_amount) * max_drones
+  local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
 
   local ratio = (current_item_count / current_target_item_count)
   return ratio
@@ -584,12 +572,12 @@ end
 function mining_depot:drones_want_to_have()
   local max_drones = self:get_drone_item_count()
   local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
-  local current_target_item_count = math.min(productivity * target_amount_per_drone, max_target_amount) * max_drones
+  local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
   local current_item_count = self:get_max_output_amount()
 
   local ratio = 1 - ((current_item_count / current_target_item_count) ^ 2)
 
-  return math.ceil(ratio * max_drones)
+  return ceil(ratio * max_drones)
 end
 
 function mining_depot:get_should_spawn_drone_count(extra)
@@ -601,16 +589,19 @@ function mining_depot:get_should_spawn_drone_count(extra)
     path_requests = path_requests + table_size(request_queue)
   end
 
-  local satisfaction = self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
+  local satisfaction = 1
   local max_drones = self:get_drone_item_count()
   local want = self:drones_want_to_have(extra)
   local active = (self:get_active_drone_count() - (extra and 1 or 0)) + path_requests
 
+  if get_energy_per_work() > 0 then
+    satisfaction = self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
+  end
   if active >= max_drones then return 0 end
 
-  local result = math.min(
-    math.ceil(want * satisfaction) - active,
-    math.ceil(depot_update_rate / path_queue_rate),
+  local result = min(
+    ceil(want * satisfaction) - active,
+    ceil(depot_update_rate / path_queue_rate),
     satisfaction < 0.6 and 0 or satisfaction < 1 and 1 or max_capacity
   )
   return result
@@ -676,8 +667,7 @@ end
 local insert = table.insert
 
 function mining_depot:get_radius()
-  local depot = shared.depots[self.entity.name]
-  return depot.radius or error("POOP")
+  return shared.depot_info.radius or error("POOP")
 end
 
 local directions =
@@ -718,7 +708,7 @@ function mining_depot:sort_by_distance(entities)
       {
         entity = entity,
         depots = {},
-        max_mining = math.ceil(entity.get_radius() ^ 2),
+        max_mining = ceil(entity.get_radius() ^ 2),
         mining = 0
       }
     end
@@ -846,7 +836,7 @@ function mining_depot:order_drone(drone, entity)
     end
     local needed_fluid = (self.fluid.amount / 100) * mining_count
     if box.amount < needed_fluid then
-      local mining_count = math.floor(box.amount / (self.fluid.amount / 100))
+      local mining_count = floor(box.amount / (self.fluid.amount / 100))
       if mining_count == 0 then
         self:add_mining_target(entity)
         return
@@ -923,7 +913,7 @@ function mining_depot:get_max_output_amount()
   local recipe = self.entity.get_recipe()
   if not recipe then return end
   for k, product in pairs (recipe.products) do
-    amount = math.max(amount, inventory.get_item_count(product.name))
+    amount = max(amount, inventory.get_item_count(product.name))
   end
   return amount
 end
@@ -970,8 +960,15 @@ function mining_depot:handle_path_request_finished(event)
 end
 
 function mining_depot:update_energy_usage()
-  local energy_interface = self.energy_interface
   local energy_per_work = get_energy_per_work()
+  local energy_interface = self.energy_interface
+
+  if energy_per_work < 1 then
+    if energy_interface and energy_interface.valid then
+      self:remove_energy_interface()
+    end
+    return
+  end
 
   if not energy_interface or not energy_interface.valid then
     self:add_energy_interface()
@@ -979,8 +976,8 @@ function mining_depot:update_energy_usage()
   end
 
   if energy_per_work > 1 then
-    local required_buffer = math.max(self:get_active_drone_count(), 10) * energy_per_work * 60 / 2
-    energy_interface.electric_buffer_size = math.max(required_buffer, energy_interface.energy)
+    local required_buffer = max(self:get_active_drone_count(), 10) * energy_per_work * 60 / 2
+    energy_interface.electric_buffer_size = max(required_buffer, energy_interface.energy)
     energy_interface.power_usage = (5 + self:get_active_drone_count()) * energy_per_work
     -- energy_interface.power_usage = (5 + self:drones_want_to_have()) * energy_per_work
   else
@@ -1016,7 +1013,7 @@ function mining_depot:update_pot()
     }
   end
 
-  local offset = math.max(0, math.min(math.ceil(self:get_full_ratio() * 17) - 1, 16))
+  local offset = max(0, min(ceil(self:get_full_ratio() * 17) - 1, 16))
   rendering.set_animation_offset(self.pot_animation, offset)
 end
 

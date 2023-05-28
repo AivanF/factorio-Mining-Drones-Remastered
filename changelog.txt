@@ -11,3 +11,12 @@ Date: 2023-05-27
     - Drones require electric energy to perform work. This can be edited with settings.
     - I removed additional Productivity research for mining drones, now vanilla one is used. This can be changed by the settings.
     - Also you can turn on and off Burner or Electric Drills thru settings.
+  Locale:
+    - English 🇬🇧
+    - German / Deutsch 🇩🇪
+    - Spanish / Español 🇪🇸
+    - French / Français 🇫🇷
+    - Turkish / Türkçe 🇹🇷
+    - Ukrainian / Український 🇺🇦
+    - Russian / Русский 🇷🇺
+    - Chinese / 中国人 🇨🇳

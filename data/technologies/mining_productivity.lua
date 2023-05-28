@@ -43,7 +43,6 @@ if settings.startup["af-mining-drones-sep-prod"].value then
       name = name.."-"..k,
       localised_name = {"technology-name."..name},
       type = "technology",
-      enabled = false,
       icons =
       {
         {

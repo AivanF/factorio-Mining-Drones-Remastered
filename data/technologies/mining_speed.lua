@@ -41,7 +41,6 @@ for k, ingredients in pairs (levels) do
     name = name.."-"..k,
     localised_name = {"technology-name."..name},
     type = "technology",
-    enabled = false,
     icons =
     {
       {
@@ -208,7 +207,7 @@ local infinite =
       }
     },
   },
-  prerequisites = k > 1 and {name.."-"..k - 1} or {},
+  prerequisites = {name.."-"..k - 1},
   unit =
   {
     count_formula = "(2^(L-6))*500",
