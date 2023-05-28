@@ -56,11 +56,11 @@ local make_drone = function(name, tint, item)
     type = "unit",
     name = bot_name,
     localised_name = {"", {"mining-drone"}, " (", item or "eh", ")"},
-    icon = "__Mining_Drones__/data/icons/mining_drone.png",
+    icon = modName.."/data/icons/mining_drone.png",
     icon_size = 64,
     icons = {
       {
-        icon = "__Mining_Drones__/data/icons/mining_drone.png",
+        icon = modName.."/data/icons/mining_drone.png",
         icon_size = 64,
       }
     },
@@ -79,7 +79,7 @@ local make_drone = function(name, tint, item)
     render_layer = "lower-object-above-shadow",
     max_pursue_distance = 64,
     resistances = nil,
-    min_persue_time = 60 * 15,
+    min_pursue_time = 60 * 15,
     selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
     sticker_box = {{-0.3, -1}, {0.2, 0.3}},
     distraction_cooldown = (15),
