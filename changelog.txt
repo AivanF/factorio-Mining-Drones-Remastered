@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.2
+Date: 2023-05-30
+  Changes:
+   - Default drone energy consumption reduced from 500 to 100 KW. It's sill higher than an electric drill considering mining rates.
+   - Prevent insane ore image swapping when placing/removing drones.
+---------------------------------------------------------------------------------------------------
 Version: 2.0.1
 Date: 2023-05-29
   Features:

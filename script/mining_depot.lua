@@ -556,12 +556,13 @@ function mining_depot:update()
 
 end
 
-function mining_depot:get_full_ratio()
+function mining_depot:get_full_ratio(max_drones)
+  -- To prevent recalc and allow fake shifting value for visuals
+  max_drones = max_drones or self:get_drone_item_count()
 
   local current_item_count = self:get_max_output_amount()
   if current_item_count == 0 then return 0 end
 
-  local max_drones = self:get_drone_item_count()
   local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
   local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
 
@@ -571,12 +572,8 @@ end
 
 function mining_depot:drones_want_to_have()
   local max_drones = self:get_drone_item_count()
-  local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
-  local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
-  local current_item_count = self:get_max_output_amount()
-
-  local ratio = 1 - ((current_item_count / current_target_item_count) ^ 2)
-
+  local full_ratio = self:get_full_ratio()
+  local ratio = 1 - full_ratio ^ 2
   return ceil(ratio * max_drones)
 end
 
@@ -1013,7 +1010,9 @@ function mining_depot:update_pot()
     }
   end
 
-  local offset = max(0, min(ceil(self:get_full_ratio() * 17) - 1, 16))
+  -- This prevents insane image swapping when placing/removing drones
+  local full_ratio = self:get_full_ratio(self:get_drone_item_count() + 20)
+  local offset = max(0, min(ceil(full_ratio * 17) - 1, 16))
   rendering.set_animation_offset(self.pot_animation, offset)
 end
 
