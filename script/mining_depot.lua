@@ -565,6 +565,7 @@ function mining_depot:get_full_ratio(max_drones)
 
   local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
   local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
+  current_target_item_count = min(current_target_item_count, 64000) -- Output inventory max size is 2^16
 
   local ratio = (current_item_count / current_target_item_count)
   return ratio
