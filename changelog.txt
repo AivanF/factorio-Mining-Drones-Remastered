@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.3
+Date: 2023-05-31
+  Bugfixes:
+   - Prevented ore disappearing when is 65,536+, now 64k is the limit
+   - Minor fixes
+  Changes:
+   - Smoother energy usage on low power satisfaction
+---------------------------------------------------------------------------------------------------
 Version: 2.0.2
 Date: 2023-05-30
   Changes:
