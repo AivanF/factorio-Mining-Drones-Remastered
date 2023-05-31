@@ -600,7 +600,7 @@ function mining_depot:get_should_spawn_drone_count(extra)
     end
   end
 
-  --Path finds in progress, don't over achieve
+  -- Path finds in progress, don't over achieve
   local path_requests = table_size(self.path_requests)
   local request_queue = script_data.request_queue[self.unit_number]
   if request_queue then
@@ -644,7 +644,10 @@ function mining_depot:try_to_mine_targets()
 
   for k = 1, should_spawn_count do
     local entity = self:find_entity_to_mine()
-    if not entity then return end
+    if not entity then
+      -- game.print("MD2R: nothing no mine :(")
+      return
+    end
     self:attempt_to_mine(entity)
   end
 
@@ -877,7 +880,7 @@ end
 
 function mining_depot:take_fluid(amount)
   local box = self:get_input_fluidbox()
-  if not box then game.print("Shouldn't happen?") return end
+  if not box then log("MD2R: no fluid box!!!") return end
   local current = box.amount
   box.amount = box.amount - amount
   self.entity.force.fluid_production_statistics.on_flow(self.fluid.name, -amount)
@@ -1464,9 +1467,6 @@ lib.add_commands = function()
     "mining-depots-rescan",
     "Forces all mining depots to cancel all orders and refresh their target list",
     reset_all_depots)
-end
-
-lib.add_commands = function()
   commands.add_command(
     "mining-depots-total-reset",
     "Completely reloads the mod.",
