@@ -579,6 +579,26 @@ function mining_depot:drones_want_to_have()
 end
 
 function mining_depot:get_should_spawn_drone_count(extra)
+  -- Check previous energy insufficiency
+  local max_by_energy = 10
+  if self.had_lack ~= nil then
+    if self.had_lack > 0 then
+      if extra then self.had_lack = self.had_lack - 1 end -- Ignore calls by coming back drones
+      max_by_energy = 1
+      -- game.print("MD2R had_lack: "..self.had_lack)
+    end
+    if self.had_lack > 15 then return 0 end
+  end
+
+  -- Check electric power 
+  local satisfaction = 1
+  if get_energy_per_work() > 0 then
+    satisfaction = self.energy_interface and self.energy_interface.valid and self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
+    if satisfaction < 0.8 then
+      self.had_lack = 30
+      return 0
+    end
+  end
 
   --Path finds in progress, don't over achieve
   local path_requests = table_size(self.path_requests)
@@ -587,21 +607,21 @@ function mining_depot:get_should_spawn_drone_count(extra)
     path_requests = path_requests + table_size(request_queue)
   end
 
-  local satisfaction = 1
-  local max_drones = self:get_drone_item_count()
-  local want = self:drones_want_to_have(extra)
   local active = (self:get_active_drone_count() - (extra and 1 or 0)) + path_requests
-
-  if get_energy_per_work() > 0 then
-    satisfaction = self.energy_interface and self.energy_interface.valid and self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
-  end
+  local max_drones = self:get_drone_item_count()
   if active >= max_drones then return 0 end
+  local want = self:drones_want_to_have(extra)
+  if active >= want then return 0 end
+
+  -- game.print("MD2R: ".." act="..self:get_active_drone_count().." paths="..path_requests.." want="..want.." sat="..floor(satisfaction*100))
 
   local result = min(
-    ceil(want * satisfaction) - active,
+    -- ceil(want * satisfaction) - active,
+    want - active,
     ceil(depot_update_rate / path_queue_rate),
-    satisfaction < 0.6 and 0 or satisfaction < 0.98 and 1 or max_capacity
+    max_by_energy
   )
+  -- game.print("MD2R add: "..result.." max_by_energy: "..max_by_energy)
   return result
 end
 
@@ -637,7 +657,11 @@ end
 function mining_depot:has_enough_energy()
   local energy_interface = self.energy_interface
   local energy_per_work = get_energy_per_work()
-  return energy_per_work < 1 or energy_interface and energy_interface.valid and energy_interface.energy > energy_per_work * 10
+  local result = energy_per_work < 1 or energy_interface and energy_interface.valid and energy_interface.energy > energy_per_work * 2
+  if not result then
+    -- game.print("MD2R: not enough energy: "..floor(energy_interface.energy / energy_per_work))
+  end
+  return result
 end
 
 function mining_depot:has_enough_fluid()
@@ -974,10 +998,11 @@ function mining_depot:update_energy_usage()
   end
 
   if energy_per_work > 1 then
-    local required_buffer = (self:get_active_drone_count() + 10) *energy_per_work *60 *5
-    energy_interface.electric_buffer_size = max(required_buffer, energy_interface.energy)
+    -- local required_buffer = (self:get_active_drone_count() + 10) *energy_per_work *60 *5
+    -- energy_interface.electric_buffer_size = max(required_buffer, energy_interface.energy)
+    energy_interface.electric_buffer_size = 10 * energy_per_work *60 *5
+
     energy_interface.power_usage = (5 + self:get_active_drone_count()) * energy_per_work
-    -- energy_interface.power_usage = (5 + self:drones_want_to_have()) * energy_per_work
   else
     energy_interface.power_usage = 0
     energy_interface.electric_buffer_size = 0
