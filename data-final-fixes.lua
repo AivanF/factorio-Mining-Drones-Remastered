@@ -1,5 +1,4 @@
 util = require "data/tf_util/tf_util"
-names = require("shared")
 shared = require("shared")
 
 local collision_util = require("collision-mask-util")

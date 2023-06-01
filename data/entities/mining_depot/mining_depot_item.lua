@@ -1,5 +1,4 @@
-local names = require("shared")
-local name = names.mining_depot
+local name = shared.mining_depot
 
 data:extend
 {

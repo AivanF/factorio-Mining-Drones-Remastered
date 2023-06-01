@@ -1,5 +1,3 @@
-local names = require("shared")
-
 -- Aggregate settings
 local depot_ingredients = {}
 local drone_ingredients = {}
@@ -59,8 +57,8 @@ if settings.startup["af-mining-drones-elengine"].value then
 end
 
 -- Customise recipes
-data.raw.recipe[names.mining_depot].ingredients = depot_ingredients
-data.raw.recipe[names.drone_name].ingredients = drone_ingredients
+data.raw.recipe[shared.mining_depot].ingredients = depot_ingredients
+data.raw.recipe[shared.drone_name].ingredients = drone_ingredients
 
 -- Customise technology research
 local tech_ingredients = {
@@ -73,8 +71,8 @@ if need_chemistry then
     table.insert(tech_ingredients, {"chemical-science-pack", 1})
 end
 
-data.raw.technology[names.drone_name].prerequisites = prerequisites
-data.raw.technology[names.drone_name].unit.ingredients = tech_ingredients
+data.raw.technology[shared.drone_name].prerequisites = prerequisites
+data.raw.technology[shared.drone_name].unit.ingredients = tech_ingredients
 
 
 -- Optionally disable vanilla mining drills

@@ -1,5 +1,3 @@
-local names = require("shared")
-
 local mining_drone = require("script/mining_drone")
 local mining_technologies = require("script/mining_technologies")
 
@@ -327,7 +325,7 @@ local on_built_entity = function(event)
   local entity = event.entity or event.created_entity
   if not (entity and entity.valid) then return end
 
-  if entity.name ~= names.mining_depot then return end
+  if entity.name ~= shared.mining_depot then return end
 
   mining_depot.new(entity)
 
@@ -351,7 +349,7 @@ function mining_depot:get_drone_speed()
   return (drone_base_speed * (1 + mining_technologies.get_walking_speed_bonus(self.force_index))) * get_speed_variance()
 end
 
-local direction_names =
+local direction_shared =
 {
   [0] = "north",
   [2] = "east",
@@ -381,7 +379,7 @@ function mining_depot:spawn_drone()
     return
   end
 
-  local name = self.target_resource_name.."-"..names.drone_name.."-"..random(variation_count)
+  local name = self.target_resource_name.."-"..shared.drone_name.."-"..random(variation_count)
 
   local entity = self.entity
   local spawn_entity_data =
@@ -401,7 +399,7 @@ function mining_depot:spawn_drone()
   unit.orientation = (entity.direction / 8)
   --unit.ai_settings.do_separation = false
 
-  --self:get_drone_inventory().remove({name = names.drone_name, count = 1})
+  --self:get_drone_inventory().remove({name = shared.drone_name, count = 1})
 
 
   local drone = mining_drone.new(unit, self)
@@ -828,7 +826,7 @@ end
 function mining_depot:remove_drone(drone, remove_item)
 
   if remove_item then
-    self:get_drone_inventory().remove{name = names.drone_name, count = 1}
+    self:get_drone_inventory().remove{name = shared.drone_name, count = 1}
   end
 
   local mining_target = drone.mining_target
@@ -1164,7 +1162,7 @@ end
 local box, mask
 local get_box_and_mask = function()
   if not (box and mask) then
-    local prototype = game.entity_prototypes[names.drone_name]
+    local prototype = game.entity_prototypes[shared.drone_name]
     box = prototype.collision_box
     mask = prototype.collision_mask
   end
@@ -1292,12 +1290,12 @@ local update_configuration = function()
     local drone_count = 0
     local inter_count = 0
     for _, surface in pairs (game.surfaces) do
-      for _, entity in pairs (surface.find_entities_filtered{name=names.mining_depot}) do
+      for _, entity in pairs (surface.find_entities_filtered{name=shared.mining_depot}) do
         mining_depot.new(entity)
         depot_count = depot_count + 1
       end
       for _, entity in pairs (surface.find_entities_filtered{type="unit"}) do
-        if entity.name:find(names.drone_name, 1, true) then
+        if entity.name:find(shared.drone_name, 1, true) then
           entity.destroy()
           drone_count = drone_count + 1
         end
@@ -1323,7 +1321,7 @@ local update_configuration = function()
   local all_drawings = rendering.get_all_ids()
   for _, id in pairs(all_drawings) do
     local obj = rendering.get_target(id)
-    if obj and obj.entity and obj.entity.name == names.mining_depot and not alive_labels[id] then
+    if obj and obj.entity and obj.entity.name == shared.mining_depot and not alive_labels[id] then
       rendering.destroy(id)
       removed_labels = removed_labels + 1
     end

@@ -1,8 +1,6 @@
-local names = require("shared")
-local depots = names.depots
-
-local radius = names.depot_info.radius
-local drop_offset = names.depot_info.drop_offset
+local depots = shared.depots
+local radius = shared.depot_info.radius
+local drop_offset = shared.depot_info.drop_offset
 
 local pad_layers = function(layers)
   for k = 1, 50 do
@@ -204,7 +202,7 @@ local working_visualisations =
 local mining_depot =
 {
   type = "assembling-machine",
-  name = names.mining_depot,
+  name = shared.mining_depot,
   localised_name =  {"mining-depot"},
   se_allow_in_space = settings.startup["af-mining-drones-red"].value,
   collision_box = {{ -2.25, -3.75}, { 2.25, 3.75}},
@@ -214,7 +212,7 @@ local mining_depot =
   allowed_effects = {},
   corpse = "depot-corpse",
   crafting_categories = {"mining-depot"},
-  crafting_speed = names.depot_info.capacity - 1,
+  crafting_speed = shared.depot_info.capacity - 1,
   damaged_trigger_effect =
   {
     damage_type_filters = "fire",

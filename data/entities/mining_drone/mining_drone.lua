@@ -1,5 +1,4 @@
-local names = require("shared")
-local name = names.drone_name
+local name = shared.drone_name
 
 data:extend
 {

@@ -32,4 +32,8 @@ data.depot_info =
   }
 }
 
+data.get_drone_proxy_name = function (ore_name, index)
+  return ore_name.."-"..shared.drone_name.."-"..index
+end
+
 return data
