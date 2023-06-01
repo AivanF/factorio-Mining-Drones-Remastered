@@ -18,6 +18,13 @@ local variation_count = shared.variation_count
 local mining_depot = {}
 local depot_metatable = {__index = mining_depot}
 
+local show_pots = true
+
+local hide_pots = function ()
+  game.print("Cleaning pots of depots...")
+  show_pots = false
+end
+
 local script_data =
 {
   depots = {},  -- unit_number => bucket => depot
@@ -1021,11 +1028,13 @@ local direction_name =
 function mining_depot:update_pot()
 
   if not self.target_resource_name then
-    if (self.pot_animation and rendering.is_valid(self.pot_animation)) then
+    if not show_pots or self.pot_animation and rendering.is_valid(self.pot_animation) then
       rendering.destroy(self.pot_animation)
     end
     return
   end
+
+  if not show_pots then return end
 
   if not (self.pot_animation and rendering.is_valid(self.pot_animation)) then
     self.pot_animation = rendering.draw_animation
@@ -1475,5 +1484,6 @@ end
 lib.rescan_all_depots = function()
   rescan_all_depots(true)
 end
+lib.hide_pots = hide_pots
 
 return lib

@@ -1,22 +1,18 @@
 local mining_drone = require("script/mining_drone")
 local mining_depot = require("script/mining_depot")
 
-local interface =
-{
+local interface = {
   get_drone_count = function()
     return mining_drone.get_drone_count()
   end,
   rescan_all_depots = function()
     return mining_depot.rescan_all_depots()
   end,
+  hide_pots = function()
+    return mining_depot.hide_pots()
+  end,
 }
 
-local lib = {}
-
-lib.add_remote_interface = function()
-  if not remote.interfaces["mining_drones"] then
-    remote.add_interface("mining_drones", interface)
-  end
+if not remote.interfaces["mining_drones"] then
+  remote.add_interface("mining_drones", interface)
 end
-
-return lib

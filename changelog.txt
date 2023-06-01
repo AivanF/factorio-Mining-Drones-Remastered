@@ -1,8 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.5
+Date: 2023-06-01
+  Features:
+   - Remote interface to hide pots, it allows depot reskin mods. Check out Mining Drones2 – CnC skins mod!
+---------------------------------------------------------------------------------------------------
 Version: 2.0.4
 Date: 2023-06-01
   Changes:
-   - Refactoring, partially it allows making patch mods a bit easier.
+   - Refactoring, partially it allows making patch mods a bit easier. Check out Mining Drones2 – AAI Mining Vehicle mod!
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.3
 Date: 2023-05-31
