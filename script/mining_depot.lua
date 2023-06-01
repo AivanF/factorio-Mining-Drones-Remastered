@@ -417,7 +417,7 @@ function mining_depot:update_sticker()
   if self.energy_interface and self.energy_interface.valid then
     satisfaction = 100 * self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
   end
-  if satisfaction < 98 then
+  if satisfaction < 96 then
     text = text.."\n"..floor(satisfaction).."%"
   end
   -- text = text.."\n"..floor(self.energy_interface.energy)
