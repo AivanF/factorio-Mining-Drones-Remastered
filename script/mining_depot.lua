@@ -8,6 +8,9 @@ local min = math.min
 local max = math.max
 local random = math.random
 
+local on_lack_wait_none = 5
+local on_lack_wait_small = 15
+
 local target_amount_per_drone = 100
 local max_target_amount = 65000 / 250
 local depot_update_rate = 60
@@ -427,6 +430,7 @@ function mining_depot:update_sticker()
   if satisfaction < 96 then
     text = text.."\n"..floor(satisfaction).."%"
   end
+  -- text = text.." "..serpent.block(self.had_lack)
   -- text = text.."\n"..floor(self.energy_interface.energy)
 
   if not self.target_resource_name then
@@ -588,11 +592,11 @@ function mining_depot:get_should_spawn_drone_count(extra)
   local max_by_energy = 10
   if self.had_lack ~= nil then
     if self.had_lack > 0 then
-      if extra then self.had_lack = self.had_lack - 1 end -- Ignore calls by coming back drones
+      if not extra then self.had_lack = self.had_lack - 1 end -- Ignore calls by coming back drones
       max_by_energy = 1
       -- game.print("MD2R had_lack: "..self.had_lack)
     end
-    if self.had_lack > 15 then return 0 end
+    if self.had_lack > on_lack_wait_small then return 0 end
   end
 
   -- Check electric power 
@@ -600,7 +604,7 @@ function mining_depot:get_should_spawn_drone_count(extra)
   if get_energy_per_work() > 0 then
     satisfaction = self.energy_interface and self.energy_interface.valid and self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
     if satisfaction < 0.8 then
-      self.had_lack = 30
+      self.had_lack = on_lack_wait_small + on_lack_wait_none
       return 0
     end
   end
