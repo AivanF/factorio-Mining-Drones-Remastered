@@ -53,8 +53,10 @@ I spent several hours to burn my brain, but made migration process from original
 
 Compatible mods:
 - Space Exploration
-- Tiberian Dawn – [waiting for the their update](https://mods.factorio.com/mod/Factorio-Tiberium/discussion/6473c85a4277cc91d5a390a2), for now you can use manual command `/mining-depots-rescan`
+- Tiberian Dawn
 - and many more by default
+
+In case you use an incompatible mod that performs some coplex logic that breaks ore detection by depots, you can use manual command `/mining-depots-rescan`
 
 Skin mods:
 - [C&C, Red Alert, Tiberium Dawn](https://mods.factorio.com/mod/Mining_Drones_2_CnC) – replaces depot and miners with refinery and harvesters from the legendary game series

@@ -55,6 +55,10 @@ if settings.startup["af-mining-drones-elengine"].value then
     table.insert(prerequisites, "electric-engine")
     need_chemistry = true
 end
+if settings.startup["af-mining-drones-eldrill"].value then
+    table.insert(drone_ingredients, {"electric-mining-drill", 1})
+    -- TODO: add prerequisites, science packs for overhaul mods
+end
 
 -- Customise recipes
 data.raw.recipe[shared.mining_depot].ingredients = depot_ingredients

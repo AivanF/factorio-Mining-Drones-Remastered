@@ -1,31 +1,43 @@
 local name = shared.mining_productivity_technology
 
-local levels =
-{
-  [1] =
-  {
+local drone_effect = {
+  type = "nothing",
+  effect_description = {"", {"effect-drone-prod"}},
+  icons = {
+    {
+      icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
+      icon_size = 64,
+      icon_mipmaps = 0,
+    },
+    {
+      icon = "__core__/graphics/icons/technology/constants/constant-mining-productivity.png",
+      icon_size = 128,
+      icon_mipmaps = 3,
+      shift = {10, 10},
+    }
+  }
+}
+
+local levels = {
+  [1] = {
     {"automation-science-pack", 1},
   },
-  [2] =
-  {
+  [2] = {
     {"automation-science-pack", 1},
     {"logistic-science-pack", 1},
   },
-  [3] =
-  {
+  [3] = {
     {"automation-science-pack", 1},
     {"logistic-science-pack", 1},
     {"chemical-science-pack", 1},
   },
-  [4] =
-  {
+  [4] = {
     {"automation-science-pack", 1},
     {"logistic-science-pack", 1},
     {"chemical-science-pack", 1},
     {"production-science-pack", 1},
   },
-  [5] =
-  {
+  [5] = {
     {"automation-science-pack", 1},
     {"logistic-science-pack", 1},
     {"chemical-science-pack", 1},
@@ -33,6 +45,7 @@ local levels =
     {"utility-science-pack", 1},
   }
 }
+
 
 if settings.startup["af-mining-drones-sep-prod"].value then
 
@@ -43,8 +56,7 @@ if settings.startup["af-mining-drones-sep-prod"].value then
       name = name.."-"..k,
       localised_name = {"technology-name."..name},
       type = "technology",
-      icons =
-      {
+      icons = {
         {
           icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
           icon_size = 256,
@@ -59,30 +71,9 @@ if settings.startup["af-mining-drones-sep-prod"].value then
         }
       },
       upgrade = true,
-      effects =
-      {
-        {
-          type = "nothing",
-          effect_description = "Mining drone productivity: +10%",
-          icons =
-          {
-            {
-              icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
-              icon_size = 64,
-              icon_mipmaps = 0,
-            },
-            {
-              icon = "__core__/graphics/icons/technology/constants/constant-mining-productivity.png",
-              icon_size = 128,
-              icon_mipmaps = 3,
-              shift = {10, 10},
-            }
-          }
-        }
-      },
+      effects = { drone_effect },
       prerequisites = k > 1 and {name.."-"..k - 1} or {},
-      unit =
-      {
+      unit = {
         count = k * 250,
         ingredients = ingredients,
         time = 30
@@ -99,8 +90,7 @@ if settings.startup["af-mining-drones-sep-prod"].value then
     name = name.."-"..k,
     localised_name = {"technology-name."..name},
     type = "technology",
-    icons =
-    {
+    icons = {
       {
         icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
         icon_size = 256,
@@ -115,27 +105,7 @@ if settings.startup["af-mining-drones-sep-prod"].value then
       }
     },
     upgrade = true,
-    effects =
-    {
-      {
-        type = "nothing",
-        effect_description = "Mining drone productivity: +10%",
-        icons =
-        {
-          {
-            icon = "__Mining_Drones_Remastered__/data/icons/mining_drone.png",
-            icon_size = 64,
-            icon_mipmaps = 0,
-          },
-          {
-            icon = "__core__/graphics/icons/technology/constants/constant-mining-productivity.png",
-            icon_size = 128,
-            icon_mipmaps = 3,
-            shift = {10, 10},
-          }
-        }
-      }
-    },
+    effects = { drone_effect },
     prerequisites = k > 1 and {name.."-"..k - 1} or {"mining-drone"},
     unit =
     {
@@ -155,5 +125,14 @@ if settings.startup["af-mining-drones-sep-prod"].value then
     max_level = "infinite"
   }
   data:extend{infinite}
+
+else
+  -- Show drones in the vanilla prod research
+  for i=1, 10 do
+    local research = data.raw.technology["mining-productivity-"..i]
+    if research then
+      table.insert(research.effects, drone_effect)
+    end
+  end
 
 end

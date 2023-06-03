@@ -498,12 +498,14 @@ function mining_depot:get_required_fluid()
   return recipe.ingredients[2]
 end
 
+
 local alert_data = {type = "item", name = shared.mining_depot}
 local target_offset = {0, -0.5}
 function mining_depot:add_no_items_alert(string)
+  game.print("mining_depot:add_no_items_alert")
 
   for k, player in pairs (self.entity.force.connected_players) do
-    player.add_custom_alert(self.entity, alert_data, "Mining depot out of mining targets.", true)
+    player.add_custom_alert(self.entity, alert_data, {"", {"depot-no-target"}}, true)
   end
 
   rendering.draw_sprite

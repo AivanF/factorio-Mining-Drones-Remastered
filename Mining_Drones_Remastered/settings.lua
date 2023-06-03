@@ -43,14 +43,23 @@ data:extend({
         default_value = false,
         order = "1-03",
     },
-
-    -- Other mods related
     {
-        type = "bool-setting",
-        name = "af-mining-drones-se-allow",
+        type = "int-setting",
+        name = "af-mining-drones-stack-size",
         setting_type = "startup",
-        default_value = true,
+        minimum_value = 5,
+        maximum_value = 500,
+        default_value = 20,
         order = "1-04",
+    },
+    {
+        type = "int-setting",
+        name = "af-mining-drones-research-cost",
+        setting_type = "startup",
+        minimum_value = 5,
+        maximum_value = 1000,
+        default_value = 100,
+        order = "1-05",
     },
 
     -- Tweak vanilla
@@ -69,68 +78,94 @@ data:extend({
         order = "2-02",
     },
 
+    -- Other mods related
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-se-allow",
+        setting_type = "startup",
+        default_value = true,
+        order = "3-se-01",
+        hidden = true,
+    },
+
     -- Recipe
+    {
+        type = "string-setting",
+        name = "af-mining-drones-recipe--",
+        localised_name = "--------- Recipe settings:",
+        setting_type = "startup",
+        default_value = "",
+        allow_blank = true,
+        order = "4-00"
+    },
     {
         type = "bool-setting",
         name = "af-mining-drones-gears",
         setting_type = "startup",
         default_value = true,
-        order = "3-01"
+        order = "4-01"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-sticks",
         setting_type = "startup",
         default_value = true,
-        order = "3-02"
+        order = "4-02"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-steel",
         setting_type = "startup",
         default_value = false,
-        order = "3-03"
+        order = "4-03"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-green",
         setting_type = "startup",
         default_value = false,
-        order = "3-04"
+        order = "4-04"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-red",
         setting_type = "startup",
         default_value = true,
-        order = "3-05"
+        order = "4-05"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-blue",
         setting_type = "startup",
         default_value = false,
-        order = "3-06"
+        order = "4-06"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-battery",
         setting_type = "startup",
         default_value = true,
-        order = "3-07"
+        order = "4-07"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-engine",
         setting_type = "startup",
         default_value = false,
-        order = "3-08"
+        order = "4-08"
     },
     {
         type = "bool-setting",
         name = "af-mining-drones-elengine",
         setting_type = "startup",
         default_value = true,
-        order = "3-09"
+        order = "4-09"
+    },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-eldrill",
+        setting_type = "startup",
+        default_value = false,
+        order = "4-100"
     },
 })

@@ -1,0 +1,10 @@
+.DS_Store
+
+# Ignore dev lib
+translinguer/
+
+# Ignore creds
+*credentials.json
+
+# Ignore cache
+texts.json

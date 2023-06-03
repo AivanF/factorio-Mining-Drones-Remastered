@@ -11,7 +11,7 @@ data:extend
     flags = {},
     subgroup = "extraction-machine",
     order = "zb"..name,
-    stack_size = 20,
+    stack_size = settings.startup["af-mining-drones-stack-size"].value,
     --place_result = name
   },
   {
