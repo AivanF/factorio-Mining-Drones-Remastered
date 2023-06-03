@@ -1,6 +1,6 @@
 # Mining Drones 2.0 Remastered
 
-![icon](/thumbnail.png)
+![icon](/Mining_Drones_Remastered/thumbnail.png)
 
 --------------------------------------
 
