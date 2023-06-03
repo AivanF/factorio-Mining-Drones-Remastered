@@ -1,9 +1,11 @@
 __author__ = 'AivanF'
 __contact__ = 'projects@aivanf.com'
 
+import re
 from translinguer import Translinguer
 
-cfg_path = '../Mining_Drones_Remastered/locale'
+base_path = '../Mining_Drones_Remastered'
+cfg_path = base_path + '/locale'
 trans = Translinguer(lang_mapper={
     'English': 'en',
     'German': 'de',
@@ -15,6 +17,34 @@ trans = Translinguer(lang_mapper={
     'Russian': 'ru',
     'Chinese': 'zh-CN',
 })
+
+
+def get_settings():
+    with open(base_path + '/settings.lua', 'r', encoding='utf8') as file:
+        content = file.read()
+    return set((
+        match
+        for match in re.findall(' name = "(.*)",', content)
+        if '--' not in match
+    ))
+
+
+SETTING_NAMES = get_settings()
+print(f'Extracted {len(SETTING_NAMES)} settings')
+
+
+def validate_settings(trans):
+    page = trans.texts['mining_drones']
+    section = page['mod-setting-name']
+    names_have = set(section.keys())
+    names_need = SETTING_NAMES
+    missed = names_need - names_have
+    extra = names_have - names_need
+    if missed or extra:
+        print('- Problem with settings names:')
+        print(f'- Missed:', '\n' + '\n'.join(missed))
+        print(f'- Extra:', '\n' + '\n'.join(extra))
+        raise ValueError((missed, extra))
 
 
 def from_raw():
@@ -33,6 +63,7 @@ def from_remote():
 def from_cache():
     trans.load_cache()
     trans.stats()
+    validate_settings(trans)
     trans.validate(raise_error=True)
     trans.save_cfg(cfg_path)
 
@@ -40,3 +71,4 @@ def from_cache():
 if __name__ == '__main__':
     from_remote()
     from_cache()
+    pass
