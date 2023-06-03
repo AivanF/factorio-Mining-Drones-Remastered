@@ -35,7 +35,9 @@ Mining drones produce pollution in accrodance with to vanilla drills. The amount
 Drones consume electric energy to perform work, so you need to attach a power pole. Required energy can be edited with settings, down to 0.
 
 ## 5. Depot capacity
-Configurable number of drones in a depot, default capacity is 100, but you can set 10-2000.
+Configurable number of drones in a depot, default capacity is 100, but you can set 10-2000. Other forks [have a bug of ore deletion](https://mods.factorio.com/mod/mining_drones_overloaded/discussion/63ebd13d14017a6b19810b41) when there are too many drons, it's solved here.
+
+Also you can change drones' item stack size from 20 to 5-500.
 
 ## 6. Drones utlise vanilla Mining Productivity research
 I removed additional Productivity research for mining drones, now vanilla one is used. This can be reverted by settings.
@@ -47,9 +49,16 @@ Also you can disable Burner or Electric Mining Drills to live with drones only!
 
 I spent several hours to burn my brain, but made migration process from original Mining Drones mod and its forks as smooth and seamless as possible, recreating state management objects and cleaning all the hidden entities to prevent wandering drones, collision with invisible walls and overlapping text labels.
 
-## Other
+## Other mods
 
-Also there are several other fixes, for instance, added compatibility with SE and some other mods.
+Compatible mods:
+- Space Exploration
+- Tiberian Dawn – [waiting for the their update](https://mods.factorio.com/mod/Factorio-Tiberium/discussion/6473c85a4277cc91d5a390a2), for now you can use manual command `/mining-depots-rescan`
+- and many more by default
+
+Skin mods:
+- [C&C, Red Alert, Tiberium Dawn](https://mods.factorio.com/mod/Mining_Drones_2_CnC) – replaces depot and miners with refinery and harvesters from the legendary game series
+- [AAI Mining Vehicle](https://mods.factorio.com/mod/Mining_Drones_2_AaiMiner)
 
 # Locales
 
@@ -66,14 +75,14 @@ The following languages are supported:
 
 # Final notes
 
-Hope you will love my mod 😊 Bug reports are welcome, feature and compatibility requests may be also considered. You can write here in Discussions or [in Discord](https://discord.gg/7QCXn35mU5).
+Hope you will love my mod 😊 Bug reports are welcome, feature and compatibility requests may be also considered. You can write [in mod's Discussions](https://mods.factorio.com/mod/Mining_Drones_Remastered/discussion) or [in Discord](https://discord.gg/7QCXn35mU5).
 
-The mod is based on [Mining Drones by Klonan](https://mods.factorio.com/mod/Mining_Drones), but I immersed deeply in the code to create the most comprehensive version of original Klonan’s mod providing great balance and many improvements listed above.
+The mod is based on [Mining Drones by Klonan](https://mods.factorio.com/mod/Mining_Drones), but I immersed deeply in the code to create the most comprehensive version of original Klonan’s mod providing great balance and many improvements listed above. There was [an interesting discussion on Reddit](https://www.reddit.com/r/factorio/comments/13u2eb6/mining_drones_20_remastered/).
 
-Partially it's similar to my previous mod [Mining Drones improved Tech](https://mods.factorio.com/mod/Mining_Drones_Harder) which was a separate patch, while this one is a fork due to it allowed much more improvements.
+Partially it's similar to my previous mod [Mining Drones improved Tech](https://mods.factorio.com/mod/Mining_Drones_Harder) which was a separate patch with recipe change only, while this one is a fork due to it allowed much more improvements.
 
-For other modders: I make this mod maximally extensible and compatible.
-- If you make a patch (like new skins for drones), you can set both original mod and MD2R as optional dependencies as both use the same internal entities names.
+For other modders: I make MD2R maximally extensible and compatible.
+- If you make a patch (like new skins for drones), you can set both original mod and MD2R as optional dependencies. Both use the same internal entities names, except drones: their names got changed from `ore_name.."mining-drone"..ind` to `ore_name"-mining-drone-"..ind` but I recommend to better use `shared.get_drone_proxy_name(ore_name, ind)`
 - If you cannot make a patch and need to fork, let's discuss, I'm open to expand API (`external interface`) to allow more customisability by patch mods.
 
 # Marketing!
