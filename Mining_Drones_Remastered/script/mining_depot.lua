@@ -25,7 +25,7 @@ local depot_metatable = {__index = mining_depot}
 local show_pots = true
 
 local hide_pots = function ()
-  game.print("Cleaning pots of depots...")
+  log("MD2R: hide_pots")
   show_pots = false
 end
 
@@ -504,8 +504,6 @@ end
 local alert_data = {type = "item", name = shared.mining_depot}
 local target_offset = {0, -0.5}
 function mining_depot:add_no_items_alert(string)
-  game.print("mining_depot:add_no_items_alert")
-
   for k, player in pairs (self.entity.force.connected_players) do
     player.add_custom_alert(self.entity, alert_data, {"", {"depot-no-target"}}, true)
   end
