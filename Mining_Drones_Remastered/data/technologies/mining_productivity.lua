@@ -128,11 +128,22 @@ if settings.startup["af-mining-drones-sep-prod"].value then
 
 else
   -- Show drones in the vanilla prod research
-  for i=1, 10 do
-    local research = data.raw.technology["mining-productivity-"..i]
+  local research
+  for i=1, 20 do
+    research = data.raw.technology["mining-productivity-"..i]
     if research then
       table.insert(research.effects, drone_effect)
     end
   end
+end
 
+if mods["warptorio2"] then
+  -- Show drones in modded prod research
+  local research
+  for i=1, 20 do
+    research = data.raw.technology["warptorio-mining-prod"..i]
+    if research then
+      table.insert(research.effects, drone_effect)
+    end
+  end
 end
