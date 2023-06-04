@@ -12,6 +12,8 @@ local ceil = math.ceil
 local floor= math.floor
 local pi = math.pi
 
+local perfmult = settings.startup["af-mining-drones-perf-mult"].value
+
 local script_data =
 {
   drones = {},
@@ -54,7 +56,8 @@ local get_drone = function(unit_number)
 end
 
 local get_drone_mining_speed = function()
-  return 0.5
+  -- TODO: check entity type and it's speed
+  return 0.5 * perfmult
 end
 
 local mining_times = {}
@@ -93,7 +96,7 @@ local get_proxy_name = function(entity)
 end
 
 function mining_drone:get_mining_speed()
-  return 0.5 * (1 + mining_technologies.get_mining_speed_bonus(self.force_index))
+  return get_drone_mining_speed() * (1 + mining_technologies.get_mining_speed_bonus(self.force_index))
 end
 
 function mining_drone:make_attack_proxy()

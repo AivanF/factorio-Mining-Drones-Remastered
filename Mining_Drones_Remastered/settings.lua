@@ -54,12 +54,21 @@ data:extend({
     },
     {
         type = "int-setting",
+        name = "af-mining-drones-perf-mult",
+        setting_type = "startup",
+        minimum_value = 1,
+        maximum_value = 50,
+        default_value = 1,
+        order = "1-05",
+    },
+    {
+        type = "int-setting",
         name = "af-mining-drones-research-cost",
         setting_type = "startup",
         minimum_value = 5,
         maximum_value = 1000,
         default_value = 100,
-        order = "1-05",
+        order = "1-06",
     },
 
     -- Tweak vanilla
@@ -96,7 +105,16 @@ data:extend({
         setting_type = "startup",
         default_value = "",
         allow_blank = true,
-        order = "4-00"
+        order = "4-000"
+    },
+    {
+        type = "int-setting",
+        name = "af-mining-drones-cost-mult",
+        setting_type = "startup",
+        minimum_value = 1,
+        maximum_value = 200,
+        default_value = 1,
+        order = "4-001",
     },
     {
         type = "bool-setting",

@@ -17,6 +17,7 @@ local depot_update_rate = 60
 local path_queue_rate = 13
 local max_capacity = settings.startup["af-mining-drones-capacity"].value
 local variation_count = shared.variation_count
+local perfmult = settings.startup["af-mining-drones-perf-mult"].value
 
 local mining_depot = {}
 local depot_metatable = {__index = mining_depot}
@@ -62,8 +63,9 @@ local get_main_product = function(entity)
 end
 
 function mining_depot:get_mining_count(entity)
+  -- entity is ore
   local bonus = mining_technologies.get_cargo_size_bonus(self.force_index)
-  return min(3 + random(2 + bonus), entity.amount)
+  return min(3*perfmult*perfmult + random(2*perfmult + bonus*perfmult), entity.amount)
 end
 
 local radius_offsets = {}
@@ -855,7 +857,7 @@ end
 
 --self.potential[drone.desired_item][unique_index(target)] = target
 
-function mining_depot:order_drone(drone, entity)
+function mining_depot:order_drone(drone, entity) -- entity is ore
   -- game.print("MD2R order")
 
   if not self.mined_any then
@@ -863,6 +865,7 @@ function mining_depot:order_drone(drone, entity)
   end
 
   local mining_count = self:get_mining_count(entity)
+
 
   if self.fluid then
     local box = self:get_input_fluidbox()
@@ -1033,8 +1036,8 @@ local direction_name =
 
 function mining_depot:update_pot()
 
-  if not self.target_resource_name then
-    if not show_pots or self.pot_animation and rendering.is_valid(self.pot_animation) then
+  if not self.target_resource_name or not show_pots then
+    if self.pot_animation and rendering.is_valid(self.pot_animation) then
       rendering.destroy(self.pot_animation)
     end
     return
