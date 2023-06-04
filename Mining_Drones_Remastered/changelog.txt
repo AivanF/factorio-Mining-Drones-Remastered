@@ -1,9 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.8
+Date: 2023-06-04
+  Features:
+   - Adjustable drones base performance
+   - Added drones recipe cost multiplier
+  Bugfixes:
+   - Fixed SE support error
+   - Fixed hiding depot pots used by reskin mods
+---------------------------------------------------------------------------------------------------
 Version: 2.0.7
 Date: 2023-06-03
   Info:
    - I created a Python script and my Translinguer lib to download locale texts from Google Sheets.
-  Changes:
+  Features:
    - Adjustable base research cost
    - Adjustable drones stack size
    - Added electric drill as an optional drone recipe
