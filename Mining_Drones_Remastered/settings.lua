@@ -94,7 +94,6 @@ data:extend({
         setting_type = "startup",
         default_value = true,
         order = "3-se-01",
-        hidden = true,
     },
 
     -- Recipe
