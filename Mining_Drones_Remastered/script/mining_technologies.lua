@@ -29,6 +29,7 @@ local technology_effects = {
 }
 
 local recalc_short_cache = function(forces)
+  log('MD2R recalc_short_cache: '..serpent.block(forces))
   for effect, by_force in pairs(script_data.cache_short) do
     for _, force in pairs(forces) do
       by_force[force] = 0
@@ -54,7 +55,7 @@ local review_technology = function(technology, do_recalc)
       script_data.cache_full[force_index][name] = technology.level
       -- log("MD2R_review: added "..technology.name.." for "..force_index)
       if do_recalc then
-        recalc_short_cache({force_index})
+        recalc_short_cache({fake={index=force_index}})
       end
       return 1
     end
