@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.10
+Date: 2023-06-06
+  Features:
+   - AAI Industry: additional settings for small/big burner/electric engines
+   - SE: removed useless bots recipes of core fragments
+  Locale:
+   - Ukrainian texts fixes, tanks to my friend Mikhailo Pidtereba
+---------------------------------------------------------------------------------------------------
 Version: 2.0.9
 Date: 2023-06-04
   Features:
