@@ -5,6 +5,8 @@ local need_logistics = false
 local need_chemistry = false
 local prerequisites = {"automation"}
 
+local aai = mods["aai-industry"] ~= nil
+
 local cnt = settings.startup["af-mining-drones-cost-mult"].value
 
 if settings.startup["af-mining-drones-gears"].value then
@@ -47,12 +49,12 @@ if settings.startup["af-mining-drones-battery"].value then
     table.insert(prerequisites, "battery")
     need_chemistry = true
 end
-if settings.startup["af-mining-drones-engine"].value then
+if settings.startup["af-mining-drones-engine"].value and not aai then
     table.insert(drone_ingredients, {"engine-unit", cnt*1})
     table.insert(prerequisites, "engine")
     need_logistics = true
 end
-if settings.startup["af-mining-drones-elengine"].value then
+if settings.startup["af-mining-drones-elengine"].value and not aai then
     table.insert(drone_ingredients, {"electric-engine-unit", cnt*1})
     table.insert(prerequisites, "electric-engine")
     need_chemistry = true
@@ -60,6 +62,23 @@ end
 if settings.startup["af-mining-drones-eldrill"].value then
     table.insert(drone_ingredients, {"electric-mining-drill", cnt*1})
     -- TODO: add prerequisites, science packs for overhaul mods
+end
+
+if aai then
+    if settings.startup["af-mining-drones-aai-motor"].value then
+        table.insert(drone_ingredients, {"motor", cnt*1})
+    end
+    if settings.startup["af-mining-drones-aai-elmotor"].value then
+        table.insert(drone_ingredients, {"electric-motor", cnt*1})
+    end
+    if settings.startup["af-mining-drones-aai-engine"].value then
+        table.insert(drone_ingredients, {"engine-unit", cnt*1})
+        table.insert(prerequisites, "engine")
+    end
+    if settings.startup["af-mining-drones-aai-elengine"].value then
+        table.insert(drone_ingredients, {"electric-engine-unit", cnt*1})
+        table.insert(prerequisites, "electric-engine")
+    end
 end
 
 -- Customise recipes

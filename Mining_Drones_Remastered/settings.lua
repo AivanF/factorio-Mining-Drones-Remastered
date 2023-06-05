@@ -185,4 +185,33 @@ data:extend({
         default_value = false,
         order = "4-100"
     },
+    -- AAI Industry
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-aai-motor",
+        setting_type = "startup",
+        default_value = false,
+        order = "5-aai-01"
+    },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-aai-elmotor",
+        setting_type = "startup",
+        default_value = true,
+        order = "5-aai-02"
+    },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-aai-engine",
+        setting_type = "startup",
+        default_value = false,
+        order = "5-aai-03"
+    },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-aai-elengine",
+        setting_type = "startup",
+        default_value = false,
+        order = "5-aai-04"
+    },
 })

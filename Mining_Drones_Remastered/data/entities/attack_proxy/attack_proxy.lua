@@ -185,6 +185,9 @@ end
 local make_recipes = function(entity)
 
   if not entity.minable then return end
+  -- Skip Space Exploration resource
+  if entity.name:find("se-core-fragment-", 1, true) then return end
+  log("MD2R_make_recipes for "..entity.name)
 
   local results = entity.minable.results or {{entity.minable.result}}
   if not next(results) then return end
