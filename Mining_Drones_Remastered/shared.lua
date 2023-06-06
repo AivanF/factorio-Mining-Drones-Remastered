@@ -2,6 +2,7 @@
 
 local data = {}
 
+data.mod_name = "Mining_Drones_Remastered"
 data.mining_depot = "mining-depot"
 data.drone_name = "mining-drone"
 data.proxy_chest_name = "mining-drone-proxy-chest"
@@ -9,7 +10,7 @@ data.mining_damage = 5
 data.mining_interval = math.floor(26 * 1.5) -- dictated by character mining animation
 data.attack_proxy_name = "mining-drone-attack-proxy-new"
 data.variation_count = 20
-data.mining_drone_collision_mask = {"error-fix-me"}
+data.mining_drone_collision_mask = {} -- gets overriden in settings-final-fixes.lua
 
 if settings.startup["af-mining-drones-sep-prod"].value then
   data.mining_productivity_technology = "mining-drone-productivity"

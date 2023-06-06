@@ -8,7 +8,7 @@ local sound = data.raw.tile["grass-1"].walking_sound
 
 local mining_drone_flags = {"placeable-off-grid", "hidden", "not-in-kill-statistics"}
 
---local mining_drone_collision_mask = {"not-colliding-with-itself", "player-layer", "consider-tile-transitions"}
+-- local mining_drone_collision_mask = {"not-colliding-with-itself", "player-layer", "consider-tile-transitions"}
 local mining_drone_collision_mask = shared.mining_drone_collision_mask
 
 

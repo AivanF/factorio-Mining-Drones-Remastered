@@ -56,7 +56,7 @@ local get_drone = function(unit_number)
 end
 
 local get_drone_mining_speed = function()
-  -- TODO: check entity type and it's speed
+  -- TODO: check entity type and it's speed: some ores require higher mining time
   return 0.5 * perfmult
 end
 

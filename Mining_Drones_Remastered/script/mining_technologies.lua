@@ -1,4 +1,4 @@
-local table = require('afutils')
+local table = require("afutils")
 
 local script_data_template = {
   -- effect => force => number
@@ -29,7 +29,7 @@ local technology_effects = {
 }
 
 local recalc_short_cache = function(forces)
-  log('MD2R recalc_short_cache: '..serpent.block(forces))
+  log("MD2R_recalc_short_cache: "..serpent.block(forces))
   for effect, by_force in pairs(script_data.cache_short) do
     for _, force in pairs(forces) do
       by_force[force] = 0
@@ -98,7 +98,7 @@ lib.on_configuration_changed = function()
       b = b + review_technology(technology, false)
     end
   end
-  log("MD2R_review: "..b.." / "..a)
+  log("MD2R_tech_eview: "..b.." / "..a)
   log("MD2R_tech_cache_full:")
   log(serpent.block(script_data.cache_full))
   recalc_short_cache(game.forces)

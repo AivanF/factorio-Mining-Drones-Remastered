@@ -3,7 +3,6 @@ shared = require("shared")
 
 local collision_util = require("collision-mask-util")
 
---local drone_layer = collision_util.get_first_unused_layer()
 local drone_layer = collision_util.get_first_unused_layer()
 
 for k, prototype in pairs (collision_util.collect_prototypes_with_layer("player-layer")) do

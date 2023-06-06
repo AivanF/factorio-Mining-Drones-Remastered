@@ -25,7 +25,7 @@ local depot_metatable = {__index = mining_depot}
 local show_pots = true
 
 local hide_pots = function ()
-  log("MD2R: hide_pots")
+  log("MD2R_hide_pots")
   show_pots = false
 end
 
@@ -1431,7 +1431,7 @@ local update_configuration = function()
 end
 
 
-local total_load = function()
+local total_reload = function()
   script_data.depots = {}
   update_configuration()
 end
@@ -1446,16 +1446,14 @@ lib.events =
   [defines.events.script_raised_revive] = on_built_entity,
   [defines.events.script_raised_built] = on_built_entity,
 
-  [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
-
   [defines.events.on_player_mined_entity] = on_entity_removed,
   [defines.events.on_robot_mined_entity] = on_entity_removed,
-
   [defines.events.on_entity_died] = on_entity_removed,
   [defines.events.script_raised_destroy] = on_entity_removed,
 
-  [defines.events.on_tick] = on_tick
+  [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
 
+  [defines.events.on_tick] = on_tick
 }
 
 lib.on_init = function()
@@ -1483,8 +1481,8 @@ lib.add_commands = function()
     reset_all_depots)
   commands.add_command(
     "mining-depots-total-reset",
-    "Completely reloads the mod.",
-    total_load)
+    "Completely reloads the mod",
+    total_reload)
 end
 
 -- For remote interface

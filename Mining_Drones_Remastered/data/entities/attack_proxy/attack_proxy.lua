@@ -38,13 +38,10 @@ local empty_attack_parameters = function()
   }
 end
 
-local sprite_width = 768
-local sprite_height = 768
+local sprite_size = 768
 local sprite_scale = 0.5
 local shifts = shared.depot_info.shifts
 
-local duration = 70
-local size = 768
 local particle_path = "__Mining_Drones_Remastered__/data/entities/mining_depot/Scene_layer-particle"
 
 local particle_stripes = function(direction)
@@ -74,7 +71,7 @@ local make_smoke = function(name, tint, direction, custom)
   {
     type = "explosion",
     name = "depot-smoke-"..name.."-"..direction,
-    duration = duration,
+    duration = 70,
     fade_in_duration = 0,
     fade_away_duration = 10,
     spread_duration = 0,
@@ -91,8 +88,8 @@ local make_smoke = function(name, tint, direction, custom)
     {
       tint = {r, g, b},
       stripes = particle_stripes(direction),
-      width = size,
-      height = size,
+      width = sprite_size,
+      height = sprite_size,
       frame_count = duration,
       priority = "high",
       animation_speed = 1,
@@ -105,7 +102,6 @@ local make_smoke = function(name, tint, direction, custom)
 end
 
 
-local size = 768
 local particle_path = "__Mining_Drones_Remastered__/data/entities/mining_depot/Scene_layer-particle"
 
 local custom_resources = 
@@ -165,8 +161,8 @@ local make_pot = function(name, tint, direction, custom)
     affected_by_wind = false,
     render_layer = "higher-object-under",
     stripes = pot_stripes(direction, name),
-    width = size,
-    height = size,
+    width = sprite_size,
+    height = sprite_size,
     frame_count = 17,
     priority = "high",
     animation_speed = 0.000000000001,
@@ -188,6 +184,7 @@ local get_item = function(name)
   if items[name] then return items[name] end
   if tools[name] then return tools[name] end
 end
+
 
 local make_recipes = function(entity)
 
@@ -252,6 +249,7 @@ local make_recipes = function(entity)
     make_drone(shared.get_drone_proxy_name(entity.name, k), map_color, entity.localised_name or {"entity-name."..entity.name})
   end
 end
+
 
 local count = 0
 
