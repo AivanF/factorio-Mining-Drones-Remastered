@@ -3,6 +3,13 @@ local make_drone = require("data/entities/mining_drone/mining_drone_entity")
 local name = shared.drone_name
 make_drone(name, {r = 1, g = 1, b = 1, a = 0.5}, "base")
 
+-- Not minable resources from other mods
+local ore_blacklist = {
+  "se-core-fragment-", -- Space Exploration core seam
+  "vtk-deepcore", -- Deep core mining
+  "-patch", "-placeholder", -- Prospector
+}
+
 local empty_rotated_animation = function()
   return
   {
@@ -185,8 +192,9 @@ end
 local make_recipes = function(entity)
 
   if not entity.minable then return end
-  -- Skip Space Exploration resource
-  if entity.name:find("se-core-fragment-", 1, true) then return end
+  for _, bad_ore_name in pairs(ore_blacklist) do
+    if entity.name:find(bad_ore_name, 1, true) then return end
+  end
   log("MD2R_make_recipes for "..entity.name)
 
   local results = entity.minable.results or {{entity.minable.result}}
