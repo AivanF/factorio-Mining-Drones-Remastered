@@ -25,6 +25,7 @@ Drones recipe is customasable by startup settings. There are the following optio
 - green / red / blue circuits
 - heat / electric engine
 - battery
+- more ingredients from supported overhaul mods!
 
 Some of these will also affect depot's recipe. The cost of science packs and required dependencies of root technology will be updated with startup settings you pick. So, you can make Mining Drones an early-, mid- or late-game technology.
 
@@ -51,12 +52,15 @@ I spent several hours to burn my brain, but made migration process from original
 
 ## Other mods
 
-Compatible mods:
-- Space Exploration
-- Tiberian Dawn
-- and many more by default
+Supported & compatible mods:
+- AAI Industry – additional recipe settings for big/small burner/electric engines
+- Space Exploration – new ores & additional settings
+- Tiberian Dawn – new ores & auto rescan on their growth
+- Warptorio2 – drones benefit from W2 productivity research; warp teleportation support in progress...
+- Deep core mining, Prospector – ignoring their special resources to keep depot's menu clean
+- and many more by default! Any new ore is already supported.
 
-In case you use an incompatible mod that performs some coplex logic that breaks ore detection by depots, you can use manual command `/mining-depots-rescan`
+In case you use a mod that performs some coplex logic that breaks ore detection by depots (like teleportation or ore growth), you can use manual command `/mining-depots-rescan`
 
 Skin mods:
 - [C&C, Red Alert, Tiberium Dawn](https://mods.factorio.com/mod/Mining_Drones_2_CnC) – replaces depot and miners with refinery and harvesters from the legendary game series

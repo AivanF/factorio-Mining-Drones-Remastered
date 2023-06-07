@@ -1,9 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.11
+Date: 2023-06-07
+  Features:
+   - Deep core mining and Prospector mods – ignoring their special resources to keep depot's menu clean. Thanks to user hoho from mods.factorio.com for suggestions and investigation!
+  Changes:
+   - A small balance fix: drones mining performance setting now has more linear effect
+  Locale:
+   - Fixed Ru/Uk locales swap
+---------------------------------------------------------------------------------------------------
 Version: 2.0.10
 Date: 2023-06-06
   Features:
    - AAI Industry: additional settings for small/big burner/electric engines
-   - SE: removed useless bots recipes of core fragments
+   - SE: removed useless drones recipes of core fragments to keep depot's menu clean
   Locale:
    - Ukrainian texts fixes, tanks to my friend Mikhailo Pidtereba
 ---------------------------------------------------------------------------------------------------
