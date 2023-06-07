@@ -65,7 +65,7 @@ end
 function mining_depot:get_mining_count(entity)
   -- entity is ore
   local bonus = mining_technologies.get_cargo_size_bonus(self.force_index)
-  return min(3*perfmult*perfmult + random(2*perfmult + bonus*perfmult), entity.amount)
+  return min(3*perfmult + random(2*perfmult + bonus*perfmult), entity.amount)
 end
 
 local radius_offsets = {}
