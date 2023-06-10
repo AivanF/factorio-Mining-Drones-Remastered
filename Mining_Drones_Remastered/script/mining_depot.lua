@@ -23,9 +23,6 @@ local depot_update_rate = 60
 local variation_count = shared.variation_count
 local perfmult = settings.startup["af-mining-drones-perf-mult"].value
 
-local mining_depot = {}
-local depot_metatable = {__index = mining_depot}
-
 local show_pots = true
 
 local hide_pots = function ()
@@ -33,10 +30,39 @@ local hide_pots = function ()
   show_pots = false
 end
 
+---@alias UnitNumber number
+---@alias BucketIndex number
+
+---@class DepotCtrl
+    ---@field entity LuaEntity @ depot's game object
+    ---@field surface_index number @ depot's surface
+    ---@field force_index number @ depot's force
+    ---@field unit_number UnitNumber @ depot's unit number
+
+    ---@field drones table<UnitNumber, boolean> @ if has a drone
+    ---@field potential array<number> @ on_entity_destroyed registrations of ore??
+    ---@field path_requests table<path_request_id, entity>
+    ---@field fluid table/Ingredient @nullable required fluid for mining
+    ---@field corpse LuaEntity @ drones proxy enter
+    ---@field spawn_corpse LuaEntity @ drones proxy spawner
+
+local mining_depot = {}
+local depot_metatable = {__index = mining_depot}
+
+
+-- NOTE: fields with the same name of DepotCtrl and script_data may have different types!
+---@shape script_data
+    ---@field depots table<BucketIndex, table<UnitNumber, DepotCtrl>>
+    ---@field path_requests table<path_request_id, DepotCtrl>
+    ---@field targeted_resources WTF
+    ---@field request_queue table<path_request_id, DepotCtrl>
+    ---@field big_migration boolean
+    ---@field reset_corpses boolean
+    ---@field clear_wall_migration boolean
 
 local script_data =
 {
-  depots = {},  -- unit_number => bucket => depot
+  depots = {},
   path_requests = {},
   targeted_resources = {},
   request_queue = {},
@@ -131,7 +157,7 @@ end
 local wall_thickness = 1.25
 local wall_padding = 0.25
 local front_gap = 2
-local box_name = "mining-depot-collision-box"
+local box_name = shared.box_name
 local render_player_index = 42069
 
 function mining_depot:add_wall()
@@ -226,7 +252,7 @@ end
 
 function mining_depot:add_energy_interface()
   if self.energy_interface and self.energy_interface.valid then
-    error("HUH")
+    error("depot.energy_interface already set")
     return
   end
 
@@ -246,15 +272,14 @@ function mining_depot:remove_energy_interface()
 end
 
 function mining_depot:add_corpse()
-
   if self.corpse and self.corpse.valid then
-    error("HUH")
+    error("depot.corpse already set")
     return
   end
 
   local corpse = self.entity.surface.create_entity
   {
-    name = "caution-corpse",
+    name = shared.proxy_corpse_name,
     position = self:get_drop_position(),
     force = "neutral"
   }
@@ -272,15 +297,14 @@ function mining_depot:remove_corpse()
 end
 
 function mining_depot:add_spawn_corpse()
-
   if self.spawn_corpse and self.spawn_corpse.valid then
-    error("HUH")
+    error("depot.spawn_corpse already set")
     return
   end
 
   local spawn_corpse = self.entity.surface.create_entity
   {
-    name = "caution-corpse",
+    name = shared.proxy_corpse_name,
     position = self.entity.position,
     force = "neutral"
   }
@@ -310,9 +334,7 @@ function mining_depot.new(entity)
     surface_index = entity.surface.index,
     force_index = entity.force.index,
     unit_number = entity.unit_number,
-    item = nil,
     fluid = nil,
-    stack_count = nil
   }
   setmetatable(depot, depot_metatable)
 
@@ -347,12 +369,20 @@ end
 
 
 local on_built_entity = function(event)
-  local entity = event.entity or event.created_entity
+  local entity = event.entity or event.created_entity or event.destination
   if not (entity and entity.valid) then return end
   if entity.name ~= shared.mining_depot then return end
 
   mining_depot.new(entity)
+  if event.source then
+    mining_depot.delete_depot_ctrl(event.source.unit_number)
+  end
+  -- game.print("MD2R_depot_built "..entity.unit_number)
+end
 
+
+function mining_depot.remove_from_list(unit_number)
+  script_data.depots[unit_number % depot_update_rate][unit_number] = nil
 end
 
 
@@ -479,7 +509,7 @@ function mining_depot:cancel_all_orders()
   for unit_number, bool in pairs(self.drones) do
     local drone = mining_drone.get_drone(unit_number)
     if drone then
-      drone:cancel_command()
+      drone:cancel_drone()
     end
   end
   self.drones = {}
@@ -656,6 +686,8 @@ function mining_depot:get_should_spawn_drone_count(extra)
 end
 
 function mining_depot:say(text)
+  -- For debugging
+  game.print(text)
   self.entity.surface.create_entity{name = "flying-text", position = self.entity.position, text = text}
 end
 
@@ -883,7 +915,6 @@ function mining_depot:order_drone(drone, entity) -- entity is ore
   end
 
   local mining_count = self:get_mining_count(entity)
-
 
   if self.fluid then
     local box = self:get_input_fluidbox()
@@ -1117,11 +1148,6 @@ function mining_depot:add_mining_target(entity, ignore_self)
 
 end
 
-function mining_depot:remove_from_list()
-  local unit_number = self.unit_number
-  script_data.depots[unit_number % depot_update_rate][unit_number] = nil
-end
-
 
 function mining_depot:clear_path_requests()
   local global_requests = script_data.path_requests
@@ -1222,7 +1248,6 @@ function mining_depot:attempt_to_mine(entity)
   end
 
   table.insert(depot_queue, entity)
-
 end
 
 
@@ -1267,15 +1292,18 @@ local on_entity_removed = function(event)
     unit_number = entity.unit_number
   end
 
-  if not unit_number then return end
+  mining_depot.delete_depot_ctrl(unit_number)
+end
 
+
+function mining_depot.delete_depot_ctrl(unit_number)
+  if not unit_number then return end
   local bucket = script_data.depots[unit_number % depot_update_rate]
   if not bucket then return end
   local depot = bucket[unit_number]
   if not depot then return end
   depot:handle_depot_deletion()
   bucket[unit_number] = nil
-
 end
 
 
@@ -1339,6 +1367,8 @@ local clean_player_inv = function(event)  -- on_gui_opened
   if entity.name ~= shared.mining_depot then return end
   --depot = get_mining_depot(entity.unit_number)
 
+  -- game.print("Opening depot: "..entity.unit_number)
+
   -- Check player
   player = game.get_player(event.player_index)
   if not player then return end
@@ -1363,7 +1393,7 @@ local clean_player_inv = function(event)  -- on_gui_opened
 end
 
 
-local update_configuration = function()
+local update_configuration = function(manual)
   -- Migrate from other mod v1
   if #script_data.depots == 0 then
     script_data.big_migration = false
@@ -1372,10 +1402,19 @@ local update_configuration = function()
     local depot_count = 0
     local drone_count = 0
     local inter_count = 0
+    local  wall_count = 0
     for _, surface in pairs (game.surfaces) do
       for _, entity in pairs (surface.find_entities_filtered{name=shared.mining_depot}) do
         mining_depot.new(entity)
         depot_count = depot_count + 1
+      end
+      for _, v in pairs (surface.find_entities_filtered{name=box_name}) do
+        v.destroy()
+        wall_count = wall_count + 1
+      end
+      for _, entity in pairs (surface.find_entities_filtered{name=shared.energy_int_name}) do
+        entity.destroy()
+        inter_count = inter_count + 1
       end
       for _, entity in pairs (surface.find_entities_filtered{type="unit"}) do
         if entity.name:find(shared.drone_name, 1, true) then
@@ -1383,12 +1422,10 @@ local update_configuration = function()
           drone_count = drone_count + 1
         end
       end
-      for _, entity in pairs (surface.find_entities_filtered{name="mining-depot-energy-interface"}) do
-        entity.destroy()
-        inter_count = inter_count + 1
-      end
     end
-    local txt = "MD2R: migration to v2 by AivanF: " .. depot_count .. " depots, " .. drone_count .. " drones & proxies."
+    local txt = "MD2R AivanF migration: "
+    if manual then txt = "MD2R total reset: " end
+    txt = txt.."De="..depot_count..", Dr="..drone_count..", w="..wall_count..", int="..inter_count
     game.print(txt)
     log(txt)
   end
@@ -1479,11 +1516,6 @@ local update_configuration = function()
 
   if not script_data.clear_wall_migration then
     script_data.clear_wall_migration = true
-    for k, surface in pairs (game.surfaces) do
-      for k, v in pairs (surface.find_entities_filtered{name = box_name}) do
-        v.destroy()
-      end
-    end
     for k, bucket in pairs (script_data.depots) do
       for unit_number, depot in pairs (bucket) do
         depot.unit_number = unit_number
@@ -1500,7 +1532,7 @@ end
 
 local total_reload = function()
   script_data.depots = {}
-  update_configuration()
+  update_configuration(true)
 end
 
 
@@ -1513,6 +1545,7 @@ lib.events =
   [defines.events.on_robot_built_entity] = on_built_entity,
   [defines.events.script_raised_revive] = on_built_entity,
   [defines.events.script_raised_built] = on_built_entity,
+  [defines.events.on_entity_cloned] = on_built_entity,
 
   -- Depot deletion
   [defines.events.on_player_mined_entity] = on_entity_removed,
@@ -1541,6 +1574,17 @@ lib.on_load = function()
   end
   for path_request_id, depot in pairs (script_data.path_requests) do
     setmetatable(depot, depot_metatable)
+  end
+
+  if remote.interfaces["warptorio"] ~= nil then
+    log("MD2R_depot: warptorio2 blacklists")
+
+    -- Blacklist hidden entities
+    local to_block = { shared.box_name, shared.proxy_corpse_name, shared.energy_int_name, }
+    for _, name in pairs(to_block) do
+      remote.call("warptorio", "InsertModTable", "harvester_blacklist", shared.mod_name, name)
+      remote.call("warptorio", "InsertModTable",      "warp_blacklist", shared.mod_name, name)
+    end
   end
 end
 

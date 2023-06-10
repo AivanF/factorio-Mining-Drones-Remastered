@@ -351,7 +351,7 @@ local depot_energy_interface = {
   energy_source = {
     type = "electric",
     emissions_per_minute = 0,
-    usage_priority = "secondary-input",
+    usage_priority = "primary-input",
     -- input_flow_limit = (math.ceil(20 * settings.startup["af-mining-drones-capacity"].value)).."MW",
     buffer_capacity = "0J",
     -- drain = "10kW",
@@ -374,7 +374,7 @@ empty.direction_count = 1
 local caution_corpse =
 {
   type = "corpse",
-  name = "caution-corpse",
+  name = shared.proxy_corpse_name,
   flags = {"placeable-off-grid"},
   animation = empty,
   remove_on_entity_placement = false,
@@ -384,7 +384,7 @@ local caution_corpse =
 local box =
 {
   type = "highlight-box",
-  name = "mining-depot-collision-box",
+  name = shared.box_name,
   localised_name = mining_depot.localised_name,
   collision_mask = {"player-layer"}
 }

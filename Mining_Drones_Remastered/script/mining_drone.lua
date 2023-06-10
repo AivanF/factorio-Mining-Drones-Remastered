@@ -18,6 +18,7 @@ local script_data =
 {
   drones = {},
   big_migration = true,
+  entities = {},
 }
 
 local drone_path_flags = {prefer_straight_paths = false, use_cache = false}
@@ -40,12 +41,9 @@ local remove_drone = function(drone)
 end
 
 local get_drone = function(unit_number)
-
   local drone = script_data.drones[unit_number]
 
-  if not drone then
-    return
-  end
+  if not drone then return end
 
   if not drone.entity.valid then
     drone:clear_things()
@@ -53,8 +51,8 @@ local get_drone = function(unit_number)
   end
 
   return drone
-
 end
+
 
 local get_drone_mining_speed = function()
   -- TODO: check entity type and it's speed: some ores require higher mining time
@@ -152,17 +150,18 @@ function lib:get_depot()
   return lib.get_mining_depot(self.depot)
 end
 
+
 function lib:process_mining()
 
   local target = self.mining_target
   if not (target and target.valid) then
-    --cancel command or something.
+    -- Cancel command or something
     return self:return_to_depot()
   end
 
   local depot = self:get_depot()
   if not depot then
-    self:cancel_command()
+    self:cancel_drone()
     return
   end
 
@@ -189,12 +188,13 @@ function lib:process_mining()
   game.pollution_statistics.on_flow(default_bot_name, pollution_value)
 
   self:return_to_depot()
-
 end
+
 
 function lib:request_order()
   self:get_depot():handle_order_request(self)
 end
+
 
 local distance = util.distance
 function lib:distance(position)
@@ -205,13 +205,14 @@ function lib:process_return_to_depot()
 
   local depot = self:get_depot()
   if not (depot and depot.entity.valid) then
-    -- self:say("My depot isn't valid!")
-    self:cancel_command()
+    self:say("My depot isn't valid!")
+    self:cancel_drone()
     -- TODO: kill?
     return
   end
 
   if self:distance(depot:get_corpse().position) > 5 then
+    self:say("return_to_depot: Go!")
     self:return_to_depot()
     return
   end
@@ -237,11 +238,11 @@ function lib:process_return_to_depot()
   self.inventory.clear()
 
   self:request_order()
-
+  self:say("return_to_depot: done...")
 end
 
-function lib:process_failed_command()
 
+function lib:process_failed_command()
   self.fail_count = (self.fail_count or 0) + 1
 
   if self.fail_count == 2 then self.entity.ai_settings.path_resolution_modifier = 1 end
@@ -255,7 +256,7 @@ function lib:process_failed_command()
       return self:mine_entity(self.mining_target, self.mining_count)
     end
 
-    --self:say("I can't mine that entity!")
+    self:say("I can't mine that entity!")
     self:clear_mining_target()
     self:return_to_depot()
     return
@@ -265,12 +266,12 @@ function lib:process_failed_command()
     if self.fail_count <= 5 then
       return self:wait(random(25, 45))
     end
-    --self:say("I can't return to my depot!")
-    self:cancel_command()
+    self:say("I can't return to my depot!")
+    self:cancel_drone()
     return
   end
-
 end
+
 
 function lib:wait(ticks)
   self.entity.set_command
@@ -279,6 +280,7 @@ function lib:wait(ticks)
     ticks_to_wait = ticks,
     distraction = defines.distraction.none
   }
+  self:say("wait, wander?!")
 end
 
 function lib:process_distracted_command()
@@ -300,28 +302,36 @@ function lib:update(event)
   if not self.entity.valid then return end
 
   if event.result ~= defines.behavior_result.success then
+    self:say("drone.update: failed")
     self:process_failed_command()
     return
   end
 
   if event.was_distracted then
+    self:say("drone.update: distracted")
     self:process_distracted_command()
     return
   end
 
   if self.state == states.mining_entity then
+    self:say("drone.update: mining")
     self:process_mining()
     return
   end
 
   if self.state == states.return_to_depot then
+    self:say("drone.update: return")
     self:process_return_to_depot()
     return
   end
 end
 
 function lib:say(text)
-  self.entity.surface.create_entity{name = "flying-text", position = self.entity.position, text = text}
+  -- For debugging
+  -- log("MD2R_drone_say: "..text)
+  -- game.print(text)
+  -- if not (self.entity and self.entity.valid) then return end
+  -- self.entity.surface.create_entity{name="flying-text", position=self.entity.position, text=text}
 end
 
 function lib:attack_mining_proxy()
@@ -329,7 +339,7 @@ function lib:attack_mining_proxy()
   local depot = self:get_depot()
 
   if not (depot and depot.entity.valid) then
-    self:cancel_command()
+    self:cancel_drone()
     return
   end
 
@@ -369,7 +379,7 @@ function lib:attack_mining_proxy()
     distraction = defines.distraction.none,
     commands = commands
   }
-
+  self:say("attack_mining_proxy")
 end
 
 function lib:mine_entity(entity, count)
@@ -390,11 +400,12 @@ function lib:clear_things()
   remove_drone(self)
 end
 
-function lib:cancel_command()
+function lib:cancel_drone()
   self:clear_things()
   self.entity.force = "neutral"
   self.entity.die()
 end
+
 
 function lib:return_to_depot()
   self.state = states.return_to_depot
@@ -403,9 +414,10 @@ function lib:return_to_depot()
   local depot = self:get_depot()
 
   if not (depot and depot.entity.valid) then
-    self:cancel_command()
+    self:cancel_drone()
     return
   end
+  self:say("Returning to depot: "..depot.entity.unit_number)
 
   local commands =
   {
@@ -432,8 +444,8 @@ function lib:return_to_depot()
     distraction = defines.distraction.none,
     commands = commands
   }
-
 end
+
 
 function lib:go_to_position(position, radius)
   self.entity.set_command
@@ -444,7 +456,9 @@ function lib:go_to_position(position, radius)
     distraction = defines.distraction.none,
     pathfind_flags = drone_path_flags,
   }
+  self:say("go_to_position: "..serpent.block(position))
 end
+
 
 function lib:go_to_entity(entity, radius)
   self.entity.set_command
@@ -455,12 +469,15 @@ function lib:go_to_entity(entity, radius)
     distraction = defines.distraction.none,
     pathfind_flags = drone_path_flags
   }
+  self:say("go_to_entity: "..serpent.block(entity.position))
 end
+
 
 function lib:clear_attack_proxy()
   local destroyed = self.attack_proxy and self.attack_proxy.valid and self.attack_proxy.destroy()
   self.attack_proxy = nil
 end
+
 
 function lib:clear_mining_target()
   if self.mining_target and self.mining_target.valid then
@@ -471,11 +488,13 @@ function lib:clear_mining_target()
   self.mining_target = nil
 end
 
+
 function lib:clear_depot()
   if not self:get_depot() then return end
   self:get_depot().drones[self.unit_number] = nil
   self.depot = nil
 end
+
 
 function lib:handle_drone_deletion()
   if not self.entity.valid then error("Hi, i am not handled.") end
@@ -485,18 +504,20 @@ function lib:handle_drone_deletion()
   end
 
   self:clear_things()
-
 end
+
 
 function lib:is_returning_to_depot()
   return self.state == states.return_to_depot
 end
+
 
 local on_ai_command_completed = function(event)
   local drone = get_drone(event.unit_number)
   if not drone then return end
   drone:update(event)
 end
+
 
 local on_entity_removed = function(event)
   local entity = event.entity
@@ -515,8 +536,8 @@ local on_entity_removed = function(event)
   entity.force.kill_count_statistics.on_flow(default_bot_name, -1)
 
   drone:handle_drone_deletion()
-
 end
+
 
 local validate_proxy_orders = function()
   --local count = 0
@@ -535,6 +556,7 @@ local validate_proxy_orders = function()
   --game.print(count)
 end
 
+
 local on_unit_added_to_group = function(event)
   --game.print("ON GROUP EVENT")
   local entity = event.unit
@@ -549,8 +571,20 @@ local on_unit_added_to_group = function(event)
   group.destroy()
 
   drone:process_distracted_command()
-
 end
+
+
+local cache_global_data = function()
+  script_data.entities = {}
+  local units = game.get_filtered_entity_prototypes{{filter="type", type="unit"}}
+  for name, proto in pairs(units) do
+    if name:find(default_bot_name, 1, true) then
+      script_data.entities[name] = name
+    end
+  end
+  -- log("MD2R_cache_global_data: "..serpent.block(script_data.entities))
+end
+
 
 
 lib.events =
@@ -576,11 +610,37 @@ lib.on_load = function()
   for unit_number, drone in pairs (script_data.drones) do
     setmetatable(drone, lib.metatable)
   end
+
+  if remote.interfaces["warptorio"] ~= nil then
+    log("MD2R_drones: warptorio2 setting remote interfaces")
+
+    -- Blacklist drones from being teleported
+    for _, name in pairs(script_data.entities) do
+      remote.call("warptorio", "InsertModTable", "harvester_blacklist", shared.mod_name, name)
+      remote.call("warptorio", "InsertModTable",      "warp_blacklist", shared.mod_name, name)
+    end
+
+    -- Subscribe to teleport events
+    local eventdefs = remote.call("warptorio", "get_events")
+    script.on_event(eventdefs["on_warp"], function()
+      -- game.print("MD2R_warptorio2: on_warp")
+      -- log("MD2R_warptorio2: on_warp")
+    end)
+    script.on_event(eventdefs["harvester_recall"], function()
+      -- game.print("MD2R_warptorio2: harvester_recall")
+      -- log("MD2R_warptorio2: harvester_recall")
+    end)
+    script.on_event(eventdefs["harvester_deploy"], function()
+      -- game.print("MD2R_warptorio2: harvester_deploy")
+      -- log("MD2R_warptorio2: harvester_deploy")
+    end)
+  end
 end
 
 lib.on_init = function()
   global.mining_drone = global.mining_drone or script_data
   game.map_settings.path_finder.use_path_cache = false
+  cache_global_data()
 end
 
 lib.on_configuration_changed = function()
@@ -599,6 +659,7 @@ lib.on_configuration_changed = function()
   end
 
   validate_proxy_orders()
+  cache_global_data()
 end
 
 lib.get_drone = get_drone

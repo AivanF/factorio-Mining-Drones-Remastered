@@ -9,6 +9,11 @@ data.proxy_chest_name = "mining-drone-proxy-chest"
 data.mining_damage = 5
 data.mining_interval = math.floor(26 * 1.5) -- dictated by character mining animation
 data.attack_proxy_name = "mining-drone-attack-proxy-new"
+
+data.box_name = "mining-depot-collision-box"
+data.proxy_corpse_name = "caution-corpse"
+data.energy_int_name = "mining-depot-energy-interface"
+
 data.variation_count = 20
 data.mining_drone_collision_mask = {} -- gets overriden in settings-final-fixes.lua
 
