@@ -1330,6 +1330,39 @@ local clear_targeted_resources = function()
 end
 
 
+local clean_player_inv = function(event)  -- on_gui_opened
+  if not settings.global["af-mining-drones-clean-player"].value then return end
+
+  -- Check depot
+  entity = event.entity
+  if not (entity and entity.valid) then return end
+  if entity.name ~= shared.mining_depot then return end
+  --depot = get_mining_depot(entity.unit_number)
+
+  -- Check player
+  player = game.get_player(event.player_index)
+  if not player then return end
+
+  src = player.get_inventory(defines.inventory.character_main)
+  dst = entity.get_output_inventory()
+  --dst = depot:get_output_inventory()
+  local count = 0
+  local recipe = entity.get_recipe()
+  if not recipe then return end
+
+  for _, product in pairs (recipe.products) do
+    count = min(
+      src.get_item_count(product.name),
+      max_target_amount - dst.get_item_count(product.name)
+    )
+    if count > 0 then
+      src.remove({name = product.name, count = count})
+      dst.insert({name = product.name, count = count})
+    end
+  end
+end
+
+
 local update_configuration = function()
   -- Migrate from other mod v1
   if #script_data.depots == 0 then
@@ -1489,6 +1522,7 @@ lib.events =
 
   -- Misc handlers
   [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
+  [defines.events.on_gui_opened] = clean_player_inv,
 
   -- Main
   [defines.events.on_tick] = on_tick

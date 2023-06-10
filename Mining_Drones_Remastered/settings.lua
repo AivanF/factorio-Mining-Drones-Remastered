@@ -18,6 +18,13 @@ data:extend({
         default_value = 0.35,
         order = "1-02",
     },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-clean-player",
+        setting_type = "runtime-global",
+        default_value = true,
+        order = "1-03",
+    },
 
     -- Basic
     {

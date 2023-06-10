@@ -2,7 +2,7 @@ __author__ = 'AivanF'
 __contact__ = 'projects@aivanf.com'
 
 import re
-from translinguer import Translinguer, dict_reversed
+from translinguer import Translinguer
 
 base_path = '../Mining_Drones_Remastered'
 cfg_path = base_path + '/locale'
@@ -47,21 +47,21 @@ def validate_settings(trans):
         raise ValueError((missed, extra))
 
 
-def from_raw():
+def from_cfg_to_csv():
     # Used to create Google Sheets manually from raw files
     trans.load_cfg(cfg_path)
-    trans.save_cache('test-cache.json')
-    # print(trans.to_csv())
+    # trans.save_cache('test-cache.json')
+    print(trans.to_csv())
 
 
-def from_remote():
+def from_remote_to_cache():
     trans.load_from_gsheets(name='MD2R-Texts')
     print(trans.stats)
     trans.validate()
     trans.save_cache()
 
 
-def from_cache():
+def from_cache_to_cfg():
     trans.load_cache()
     print(trans.stats)
     validate_settings(trans)
@@ -70,7 +70,7 @@ def from_cache():
 
 
 if __name__ == '__main__':
-    # from_raw()
-    # from_remote()
-    from_cache()
+    # from_cfg_to_csv()
+    from_remote_to_cache()
+    from_cache_to_cfg()
     pass
