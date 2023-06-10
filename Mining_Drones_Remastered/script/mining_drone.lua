@@ -17,18 +17,19 @@ local perfmult = settings.startup["af-mining-drones-perf-mult"].value
 local script_data =
 {
   drones = {},
-  big_migration = true
+  big_migration = true,
 }
 
 local drone_path_flags = {prefer_straight_paths = false, use_cache = false}
 
-local mining_drone = {}
+local lib = {}
 
-mining_drone.get_mining_depot = function(self)
-  error("Try to use get_depot before set up?")
+lib.get_mining_depot = function(self)
+  -- Gets overridden by mining_depot.lua
+  error("Trying to use get_mining_depot before set up")
 end
 
-mining_drone.metatable = {__index = mining_drone}
+lib.metatable = {__index = lib}
 
 local add_drone = function(drone)
   script_data.drones[drone.unit_number] = drone
@@ -95,11 +96,11 @@ local get_proxy_name = function(entity)
 
 end
 
-function mining_drone:get_mining_speed()
+function lib:get_mining_speed()
   return get_drone_mining_speed() * (1 + mining_technologies.get_mining_speed_bonus(self.force_index))
 end
 
-function mining_drone:make_attack_proxy()
+function lib:make_attack_proxy()
 
   --Health is set so it will take just enough mining_damage at exactly the right time
   local entity = self.mining_target
@@ -129,7 +130,7 @@ local states =
   return_to_depot = 2
 }
 
-mining_drone.new = function(entity, depot)
+lib.new = function(entity, depot)
 
   local drone =
   {
@@ -140,18 +141,18 @@ mining_drone.new = function(entity, depot)
     inventory = game.create_inventory(100)
   }
   entity.ai_settings.path_resolution_modifier = 0
-  setmetatable(drone, mining_drone.metatable)
+  setmetatable(drone, lib.metatable)
 
   add_drone(drone)
   return drone
 end
 
-function mining_drone:get_depot()
+function lib:get_depot()
   if not self.depot then return end
-  return mining_drone.get_mining_depot(self.depot)
+  return lib.get_mining_depot(self.depot)
 end
 
-function mining_drone:process_mining()
+function lib:process_mining()
 
   local target = self.mining_target
   if not (target and target.valid) then
@@ -191,21 +192,22 @@ function mining_drone:process_mining()
 
 end
 
-function mining_drone:request_order()
+function lib:request_order()
   self:get_depot():handle_order_request(self)
 end
 
 local distance = util.distance
-function mining_drone:distance(position)
+function lib:distance(position)
   return distance(self.entity.position, position)
 end
 
-function mining_drone:process_return_to_depot()
+function lib:process_return_to_depot()
 
   local depot = self:get_depot()
   if not (depot and depot.entity.valid) then
-    --self:say("My depot isn't valid!")
+    self:say("My depot isn't valid!")
     self:cancel_command()
+    -- TODO: kill?
     return
   end
 
@@ -238,7 +240,7 @@ function mining_drone:process_return_to_depot()
 
 end
 
-function mining_drone:process_failed_command()
+function lib:process_failed_command()
 
   self.fail_count = (self.fail_count or 0) + 1
 
@@ -270,7 +272,7 @@ function mining_drone:process_failed_command()
 
 end
 
-function mining_drone:wait(ticks)
+function lib:wait(ticks)
   self.entity.set_command
   {
     type = defines.command.wander,
@@ -279,7 +281,7 @@ function mining_drone:wait(ticks)
   }
 end
 
-function mining_drone:process_distracted_command()
+function lib:process_distracted_command()
   if self.state == states.mining_entity then
     -- We were in the middle of attacking the proxy, go mine it.
     self:attack_mining_proxy()
@@ -294,7 +296,7 @@ function mining_drone:process_distracted_command()
 
 end
 
-function mining_drone:update(event)
+function lib:update(event)
   if not self.entity.valid then return end
 
   if event.result ~= defines.behavior_result.success then
@@ -318,11 +320,11 @@ function mining_drone:update(event)
   end
 end
 
-function mining_drone:say(text)
+function lib:say(text)
   self.entity.surface.create_entity{name = "flying-text", position = self.entity.position, text = text}
 end
 
-function mining_drone:attack_mining_proxy()
+function lib:attack_mining_proxy()
 
   local depot = self:get_depot()
 
@@ -370,7 +372,7 @@ function mining_drone:attack_mining_proxy()
 
 end
 
-function mining_drone:mine_entity(entity, count)
+function lib:mine_entity(entity, count)
 
   self.mining_count = count or 1
   self.mining_target = entity
@@ -381,20 +383,20 @@ function mining_drone:mine_entity(entity, count)
 
 end
 
-function mining_drone:clear_things()
+function lib:clear_things()
   self:clear_mining_target()
   self:clear_attack_proxy()
   self:clear_depot()
   remove_drone(self)
 end
 
-function mining_drone:cancel_command()
+function lib:cancel_command()
   self:clear_things()
   self.entity.force = "neutral"
   self.entity.die()
 end
 
-function mining_drone:return_to_depot()
+function lib:return_to_depot()
   self.state = states.return_to_depot
   self:clear_attack_proxy()
 
@@ -433,7 +435,7 @@ function mining_drone:return_to_depot()
 
 end
 
-function mining_drone:go_to_position(position, radius)
+function lib:go_to_position(position, radius)
   self.entity.set_command
   {
     type = defines.command.go_to_location,
@@ -444,7 +446,7 @@ function mining_drone:go_to_position(position, radius)
   }
 end
 
-function mining_drone:go_to_entity(entity, radius)
+function lib:go_to_entity(entity, radius)
   self.entity.set_command
   {
     type = defines.command.go_to_location,
@@ -455,12 +457,12 @@ function mining_drone:go_to_entity(entity, radius)
   }
 end
 
-function mining_drone:clear_attack_proxy()
+function lib:clear_attack_proxy()
   local destroyed = self.attack_proxy and self.attack_proxy.valid and self.attack_proxy.destroy()
   self.attack_proxy = nil
 end
 
-function mining_drone:clear_mining_target()
+function lib:clear_mining_target()
   if self.mining_target and self.mining_target.valid then
     if self:get_depot() then
       self:get_depot():add_mining_target(self.mining_target)
@@ -469,13 +471,13 @@ function mining_drone:clear_mining_target()
   self.mining_target = nil
 end
 
-function mining_drone:clear_depot()
+function lib:clear_depot()
   if not self:get_depot() then return end
   self:get_depot().drones[self.unit_number] = nil
   self.depot = nil
 end
 
-function mining_drone:handle_drone_deletion()
+function lib:handle_drone_deletion()
   if not self.entity.valid then error("Hi, i am not handled.") end
 
   if self:get_depot() then
@@ -486,7 +488,7 @@ function mining_drone:handle_drone_deletion()
 
 end
 
-function mining_drone:is_returning_to_depot()
+function lib:is_returning_to_depot()
   return self.state == states.return_to_depot
 end
 
@@ -551,8 +553,7 @@ local on_unit_added_to_group = function(event)
 end
 
 
-
-mining_drone.events =
+lib.events =
 {
   --[defines.events.on_built_entity] = on_built_entity,
   --[defines.events.on_robot_built_entity] = on_built_entity,
@@ -570,19 +571,19 @@ mining_drone.events =
   [defines.events.on_unit_added_to_group] = on_unit_added_to_group,
 }
 
-mining_drone.on_load = function()
+lib.on_load = function()
   script_data = global.mining_drone or script_data
   for unit_number, drone in pairs (script_data.drones) do
-    setmetatable(drone, mining_drone.metatable)
+    setmetatable(drone, lib.metatable)
   end
 end
 
-mining_drone.on_init = function()
+lib.on_init = function()
   global.mining_drone = global.mining_drone or script_data
   game.map_settings.path_finder.use_path_cache = false
 end
 
-mining_drone.on_configuration_changed = function()
+lib.on_configuration_changed = function()
   if not script_data.big_migration then
     script_data.big_migration = true
     for unit_number, drone in pairs (script_data.drones) do
@@ -600,10 +601,10 @@ mining_drone.on_configuration_changed = function()
   validate_proxy_orders()
 end
 
-mining_drone.get_drone = get_drone
+lib.get_drone = get_drone
 
-mining_drone.get_drone_count = function()
+lib.get_drone_count = function()
   return table_size(script_data.drones)
 end
 
-return mining_drone
+return lib

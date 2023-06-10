@@ -1,21 +1,25 @@
 local mining_drone = require("script/mining_drone")
 local mining_technologies = require("script/mining_technologies")
 
-
 local ceil = math.ceil
 local floor = math.floor
 local min = math.min
 local max = math.max
 local random = math.random
+local insert = table.insert
 
-local on_lack_wait_none = 5
-local on_lack_wait_small = 15
+-- Energy lack handling to reduce oscillations
+local on_lack_wait_none = 5  -- no new drones after shortage
+local on_lack_wait_small = 15  -- then max 1 new drone output
 
 local target_amount_per_drone = 100
-local max_target_amount = 65000 / 250
-local depot_update_rate = 60
-local path_queue_rate = 13
+local max_target_amount = 65000 -- Output inventory max size is 2^16
 local max_capacity = settings.startup["af-mining-drones-capacity"].value
+
+local path_queue_rate = 13
+local path_request_flags = {cache = false, low_priority = false}
+
+local depot_update_rate = 60
 local variation_count = shared.variation_count
 local perfmult = settings.startup["af-mining-drones-perf-mult"].value
 
@@ -29,6 +33,7 @@ local hide_pots = function ()
   show_pots = false
 end
 
+
 local script_data =
 {
   depots = {},  -- unit_number => bucket => depot
@@ -40,9 +45,11 @@ local script_data =
   clear_wall_migration = true,
 }
 
+
 local get_energy_per_work = function()
   return floor(settings.global["af-mining-drones-work-energy"].value * 1000 / 60)
 end
+
 
 local get_mining_depot = function(unit_number)
   local bucket = script_data.depots[unit_number % depot_update_rate]
@@ -50,6 +57,7 @@ local get_mining_depot = function(unit_number)
 end
 
 mining_drone.get_mining_depot = get_mining_depot
+
 
 local main_products = {}
 local get_main_product = function(entity)
@@ -62,11 +70,13 @@ local get_main_product = function(entity)
 
 end
 
+
 function mining_depot:get_mining_count(entity)
   -- entity is ore
   local bonus = mining_technologies.get_cargo_size_bonus(self.force_index)
   return min(3*perfmult + random(2*perfmult + bonus*perfmult), entity.amount)
 end
+
 
 local radius_offsets = {}
 local offset = {shared.depot_info.drop_offset[1], shared.depot_info.drop_offset[2]}
@@ -97,6 +107,7 @@ function mining_depot:get_radius_offset()
   return radius_offsets[self.entity.name][self.entity.direction]
 end
 
+
 local add_to_bucket = function(depot)
   local unit_number = depot.unit_number
   local depots = script_data.depots
@@ -107,6 +118,7 @@ local add_to_bucket = function(depot)
   end
   bucket[unit_number] = depot
 end
+
 
 local collide_box = function()
   return
@@ -286,8 +298,8 @@ function mining_depot:remove_spawn_corpse()
 
 end
 
-function mining_depot.new(entity)
 
+function mining_depot.new(entity)
   local depot =
   {
     entity = entity,
@@ -333,15 +345,16 @@ function mining_depot.new(entity)
   return depot
 end
 
+
 local on_built_entity = function(event)
   local entity = event.entity or event.created_entity
   if not (entity and entity.valid) then return end
-
   if entity.name ~= shared.mining_depot then return end
 
   mining_depot.new(entity)
 
 end
+
 
 function mining_depot:get_drop_position()
   local offset = self:get_drop_offset()
@@ -472,11 +485,12 @@ function mining_depot:cancel_all_orders()
   self.drones = {}
 end
 
+
 function mining_depot:target_name_changed()
 
   self.target_resource_name = self:get_target_resource_name()
   self.fluid = self:get_required_fluid()
-  
+
   self:clear_path_requests()
   self:cancel_all_orders()
 
@@ -494,6 +508,7 @@ function mining_depot:target_name_changed()
 
 end
 
+
 function mining_depot:get_required_fluid()
   local recipe = self.entity.get_recipe()
   if not recipe then return end
@@ -503,6 +518,7 @@ end
 
 local alert_data = {type = "item", name = shared.mining_depot}
 local target_offset = {0, -0.5}
+
 function mining_depot:add_no_items_alert(string)
   for k, player in pairs (self.entity.force.connected_players) do
     player.add_custom_alert(self.entity, alert_data, {"", {"depot-no-target"}}, true)
@@ -519,6 +535,7 @@ function mining_depot:add_no_items_alert(string)
     render_layer = "entity-info-icon-above"
   }
 end
+
 
 
 function mining_depot:update()
@@ -567,27 +584,29 @@ function mining_depot:update()
 
 end
 
-function mining_depot:get_full_ratio(max_drones)
+
+function mining_depot:get_full_ratio(drones_count)
   -- To prevent recalc and allow fake shifting value for visuals
-  max_drones = max_drones or self:get_drone_item_count()
+  drones_count = drones_count or self:get_drone_item_count()
 
   local current_item_count = self:get_max_output_amount()
   if current_item_count == 0 then return 0 end
 
   local productivity = 1 + mining_technologies.get_productivity_bonus(self.force_index)
-  local current_target_item_count = min(productivity * target_amount_per_drone, max_target_amount) * max_drones
-  current_target_item_count = min(current_target_item_count, 64000) -- Output inventory max size is 2^16
+  local current_target_item_count = target_amount_per_drone * productivity * drones_count
+  current_target_item_count = min(current_target_item_count, max_target_amount)
 
   local ratio = (current_item_count / current_target_item_count)
   return ratio
 end
 
 function mining_depot:drones_want_to_have()
-  local max_drones = self:get_drone_item_count()
-  local full_ratio = self:get_full_ratio()
+  local drones_count = self:get_drone_item_count()
+  local full_ratio = self:get_full_ratio(drones_count)
   local ratio = 1 - full_ratio ^ 2
-  return ceil(ratio * max_drones)
+  return ceil(ratio * drones_count)
 end
+
 
 function mining_depot:get_should_spawn_drone_count(extra)
   -- Check previous energy insufficiency
@@ -601,7 +620,7 @@ function mining_depot:get_should_spawn_drone_count(extra)
     if self.had_lack > on_lack_wait_small then return 0 end
   end
 
-  -- Check electric power 
+  -- Check electric power
   local satisfaction = 1
   if get_energy_per_work() > 0 then
     satisfaction = self.energy_interface and self.energy_interface.valid and self.energy_interface.energy / self.energy_interface.electric_buffer_size or 0
@@ -619,8 +638,8 @@ function mining_depot:get_should_spawn_drone_count(extra)
   end
 
   local active = (self:get_active_drone_count() - (extra and 1 or 0)) + path_requests
-  local max_drones = self:get_drone_item_count()
-  if active >= max_drones then return 0 end
+  local drones_count = self:get_drone_item_count()
+  if active >= drones_count then return 0 end
   local want = self:drones_want_to_have(extra)
   if active >= want then return 0 end
 
@@ -642,10 +661,10 @@ end
 
 function mining_depot:try_to_mine_targets()
 
-  local max_drones = self:get_drone_item_count()
+  local drones_count = self:get_drone_item_count()
   local active = self:get_active_drone_count()
 
-  if active >= max_drones then
+  if active >= drones_count then
     return
   end
 
@@ -664,9 +683,11 @@ function mining_depot:try_to_mine_targets()
 
 end
 
+
 function mining_depot:has_mining_targets()
   return next(self.recent) or next(self.potential)
 end
+
 
 function mining_depot:has_enough_energy()
   local energy_interface = self.energy_interface
@@ -700,7 +721,6 @@ local unique_index = function(entity)
   return script.register_on_entity_destroyed(entity)
 end
 
-local insert = table.insert
 
 function mining_depot:get_radius()
   return shared.depot_info.radius or error("POOP")
@@ -725,7 +745,7 @@ function mining_depot:get_area()
   return util.area(origin, radius)
 end
 
-local insert = table.insert
+
 function mining_depot:sort_by_distance(entities)
 
   local origin = self.entity.position
@@ -784,7 +804,7 @@ function mining_depot:find_potential_targets()
 
 end
 
-local insert = table.insert
+
 function mining_depot:find_entity_to_mine()
 
   local targeted_resources = script_data.targeted_resources[self.surface_index]
@@ -948,7 +968,7 @@ function mining_depot:get_max_output_amount()
   local inventory = self:get_output_inventory()
   local amount = 0
   local recipe = self.entity.get_recipe()
-  if not recipe then return end
+  if not recipe then return 0 end
   for k, product in pairs (recipe.products) do
     amount = max(amount, inventory.get_item_count(product.name))
   end
@@ -1053,7 +1073,8 @@ function mining_depot:update_pot()
     }
   end
 
-  -- This prevents insane image swapping when placing/removing drones
+  -- This prevents insane image swapping (from totally full to almost empty)
+  -- when putting/removing drones.
   local full_ratio = self:get_full_ratio(self:get_drone_item_count() + 20)
   local offset = max(0, min(ceil(full_ratio * 17) - 1, 16))
   rendering.set_animation_offset(self.pot_animation, offset)
@@ -1070,7 +1091,7 @@ function mining_depot:return_drone(drone)
   self:update_sticker()
 end
 
-local insert = table.insert
+
 function mining_depot:add_mining_target(entity, ignore_self)
   local targeted_resources = script_data.targeted_resources[self.surface_index]
   local index = unique_index(entity)
@@ -1101,6 +1122,7 @@ function mining_depot:remove_from_list()
   script_data.depots[unit_number % depot_update_rate][unit_number] = nil
 end
 
+
 function mining_depot:clear_path_requests()
   local global_requests = script_data.path_requests
   for k, entity in pairs (self.path_requests) do
@@ -1110,6 +1132,7 @@ function mining_depot:clear_path_requests()
   self.path_requests = {}
 end
 
+
 function mining_depot:handle_depot_deletion()
   self:cancel_all_orders()
   self.drones = nil
@@ -1118,6 +1141,7 @@ function mining_depot:handle_depot_deletion()
   self:remove_spawn_corpse()
   self:clear_wall()
 end
+
 
 function mining_depot:get_all_depots()
   local depots = {}
@@ -1137,6 +1161,7 @@ function mining_depot:get_active_drone_count()
   return table_size(self.drones)
 end
 
+
 local process_request_queue = function()
   if next(script_data.path_requests) then return end
   for depot_unit_number, entities in pairs (script_data.request_queue) do
@@ -1154,6 +1179,7 @@ local process_request_queue = function()
     end
   end
 end
+
 
 local on_tick = function(event)
 
@@ -1175,6 +1201,7 @@ local on_tick = function(event)
 
 end
 
+
 local box, mask
 local get_box_and_mask = function()
   if not (box and mask) then
@@ -1185,7 +1212,6 @@ local get_box_and_mask = function()
   return box, mask
 end
 
-local flags = {cache = false, low_priority = false}
 
 function mining_depot:attempt_to_mine(entity)
 
@@ -1199,6 +1225,7 @@ function mining_depot:attempt_to_mine(entity)
 
 end
 
+
 function mining_depot:request_path(entity)
   --Will make a path request, and if it passes, send a drone to go mine it.
   local box, mask = get_box_and_mask()
@@ -1211,13 +1238,14 @@ function mining_depot:request_path(entity)
     force = self.entity.force,
     radius = entity.get_radius() + 0.5,
     can_open_gates = true,
-    pathfind_flags = flags
+    pathfind_flags = path_request_flags,
   }
 
   script_data.path_requests[path_request_id] = self
   self.path_requests[path_request_id] = entity
 
 end
+
 
 local on_script_path_request_finished = function(event)
   --game.print(event.tick.." - "..event.id)
@@ -1226,6 +1254,7 @@ local on_script_path_request_finished = function(event)
   script_data.path_requests[event.id] = nil
   depot:handle_path_request_finished(event)
 end
+
 
 local on_entity_removed = function(event)
 
@@ -1249,12 +1278,14 @@ local on_entity_removed = function(event)
 
 end
 
+
 function mining_depot:check_for_rescan()
   if self.target_resource_name == self:get_target_resource_name() then
     return
   end
   self:target_name_changed()
 end
+
 
 local cancel_all_depots = function()
   for k, bucket in pairs (script_data.depots) do
@@ -1264,6 +1295,7 @@ local cancel_all_depots = function()
     end
   end
 end
+
 
 local rescan_all_depots = function(silent)
   if not silent then
@@ -1279,10 +1311,12 @@ local rescan_all_depots = function(silent)
   end
 end
 
+
 local reset_all_depots = function()
   cancel_all_depots()
   rescan_all_depots()
 end
+
 
 local clear_targeted_resources = function()
   for k, bucket in pairs (script_data.depots) do
@@ -1298,7 +1332,7 @@ end
 
 local update_configuration = function()
   -- Migrate from other mod v1
-  if #script_data.depots == 0 then 
+  if #script_data.depots == 0 then
     script_data.big_migration = false
     script_data.reset_corpses = false
     script_data.clear_wall_migration = false
@@ -1355,7 +1389,7 @@ local update_configuration = function()
     for k, surface in pairs (game.surfaces) do
       script_data.targeted_resources[surface.index] = {}
     end
-    
+
     for k, bucket in pairs (script_data.depots) do
       for unit_number, depot in pairs (bucket) do
         depot.path_requests = {}
@@ -1441,18 +1475,22 @@ local lib = {}
 
 lib.events =
 {
+  -- Depot creation
   [defines.events.on_built_entity] = on_built_entity,
   [defines.events.on_robot_built_entity] = on_built_entity,
   [defines.events.script_raised_revive] = on_built_entity,
   [defines.events.script_raised_built] = on_built_entity,
 
+  -- Depot deletion
   [defines.events.on_player_mined_entity] = on_entity_removed,
   [defines.events.on_robot_mined_entity] = on_entity_removed,
   [defines.events.on_entity_died] = on_entity_removed,
   [defines.events.script_raised_destroy] = on_entity_removed,
 
+  -- Misc handlers
   [defines.events.on_script_path_request_finished] = on_script_path_request_finished,
 
+  -- Main
   [defines.events.on_tick] = on_tick
 }
 
