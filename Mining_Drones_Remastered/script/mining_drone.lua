@@ -205,7 +205,7 @@ function lib:process_return_to_depot()
 
   local depot = self:get_depot()
   if not (depot and depot.entity.valid) then
-    self:say("My depot isn't valid!")
+    -- self:say("My depot isn't valid!")
     self:cancel_command()
     -- TODO: kill?
     return
