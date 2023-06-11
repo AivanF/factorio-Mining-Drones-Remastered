@@ -33,7 +33,7 @@ Some of these will also affect depot's recipe. The cost of science packs and req
 Mining drones produce pollution in accrodance with to vanilla drills. The amount can be adjusted by map settings, whether you prefer more or less pollution.
 
 ## 4. Energy
-Drones consume electric energy to perform work, so you need to attach a power pole. Required energy can be edited with settings, down to 0.
+Drones consume electric energy to perform work, so you need to attach a power pole. Default value of required energy usage by a drone is 100 kW, it can be edited with settings, down to 0. Note that depot also consumes energy as 5 drones to maintain their management.
 
 ## 5. Depot capacity
 Configurable number of drones in a depot, default capacity is 100, but you can set 10-2000. Other forks [have a bug of ore deletion](https://mods.factorio.com/mod/mining_drones_overloaded/discussion/63ebd13d14017a6b19810b41) when there are too many drons, it's solved here.
@@ -46,21 +46,24 @@ I removed additional Productivity research for mining drones, now vanilla one is
 ## 7. Disableable Drills
 Also you can disable Burner or Electric Mining Drills to live with drones only!
 
-## 8. Migrating from v1.x and forks
+## 8. Ore Auto Loading
+If you accidentally grab ore from a depot, it will be put back when you open it `:)`
+
+## 9. Migrating from v1.x and forks
 
 I spent several hours to burn my brain, but made migration process from original Mining Drones mod and its forks as smooth and seamless as possible, recreating state management objects and cleaning all the hidden entities to prevent wandering drones, collision with invisible walls and overlapping text labels.
 
-## Other mods
+## 10. Mods compatibility
 
 Supported & compatible mods:
-- AAI Industry – additional recipe settings for big/small burner/electric engines
-- Space Exploration – new ores & additional settings
-- Tiberian Dawn – new ores & auto rescan on their growth
-- Warptorio2 – drones benefit from W2 productivity research; warp teleportation support in progress...
-- Deep core mining, Prospector – ignoring their special resources to keep depot's menu clean
+- AAI Industry – additional recipe settings for big/small burner/electric motors/engines.
+- Space Exploration – new ores & additional settings.
+- Tiberian Dawn – new ores & auto rescan on their growth.
+- Warptorio2 – everything keep working after warp teleportations; drones benefit from W2 productivity research.
+- Deep core mining, Prospector – ignoring their special resources to keep depot's menu clean.
 - and many more by default! Any new ore is already supported.
 
-In case you use a mod that performs some coplex logic that breaks ore detection by depots (like teleportation or ore growth), you can use manual command `/mining-depots-rescan`
+In case you use a mod that performs some complex logic that breaks ore detection by depots (like teleportation or ore growth), you can use manual commands `/mining-depots-rescan` or more cruel `/mining-depots-total-reset`
 
 Skin mods:
 - [C&C, Red Alert, Tiberium Dawn](https://mods.factorio.com/mod/Mining_Drones_2_CnC) – replaces depot and miners with refinery and harvesters from the legendary game series
@@ -87,11 +90,9 @@ The mod is based on [Mining Drones by Klonan](https://mods.factorio.com/mod/Mini
 
 Partially it's similar to my previous mod [Mining Drones improved Tech](https://mods.factorio.com/mod/Mining_Drones_Harder) which was a separate patch with recipe change only, while this one is a fork due to it allowed much more improvements.
 
-For other modders: I make MD2R maximally extensible and compatible.
-- If you make a patch (like new skins for drones), you can set both original mod and MD2R as optional dependencies. Both use the same internal entities names, except drones: their names got changed from `ore_name.."mining-drone"..ind` to `ore_name"-mining-drone-"..ind` but I recommend to better use `shared.get_drone_proxy_name(ore_name, ind)`
-- If you cannot make a patch and need to fork, let's discuss, I'm open to expand API (`external interface`) to allow more customisability by patch mods.
+For other modders: my goal is to MD2R maximally extensible and compatible. [Check out related FAQ section](https://mods.factorio.com/mod/Mining_Drones_Remastered/faq).
 
 # Marketing!
 
 - To protect and expand your factory, I recommend to use another my mod: [Improved Sniper Rifle and Carbine](https://mods.factorio.com/mod/sniper-rifle-improved)
-- To make hunting more fun and profitable, check out my mod [Powered by Biters](https://mods.factorio.com/mod/Powered-by-Biters)
+- To make hunting more fun and profitable, or to make a crude oil supply, check out my mod [Powered by Biters](https://mods.factorio.com/mod/Powered-by-Biters)
