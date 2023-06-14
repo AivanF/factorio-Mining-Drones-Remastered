@@ -1373,9 +1373,11 @@ local clean_player_inv = function(event)  -- on_gui_opened
   player = game.get_player(event.player_index)
   if not player then return end
 
-  src = player.get_inventory(defines.inventory.character_main)
   dst = entity.get_output_inventory()
   --dst = depot:get_output_inventory()
+  src = player.get_inventory(defines.inventory.character_main)
+  if not src then return end  -- SE satellite view
+
   local count = 0
   local recipe = entity.get_recipe()
   if not recipe then return end

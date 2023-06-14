@@ -1,8 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.13
+Date: 2023-06-14
+  Bugfixes:
+   - Fixed error of previously added QoL feature on SE satellite view.
+---------------------------------------------------------------------------------------------------
 Version: 2.0.12
 Date: 2023-06-10
   Features:
-   - Amazing support of Warptorio2 teleportation events
+   - Amazing support of Warptorio2 teleportation events.
    - QoL: since now, if you accidentally take ore, it will be put back on opening depot! Yep, there ia a global/map setting that explains it and allows to turn off.
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.11
@@ -10,17 +15,17 @@ Date: 2023-06-07
   Features:
    - Deep core mining and Prospector mods – ignoring their special resources to keep depot's menu clean. Thanks to user hoho from mods.factorio.com for suggestions and investigation!
   Changes:
-   - A small balance fix: drones mining performance setting now has more linear effect
+   - A small balance fix: drones mining performance setting now has more linear effect.
   Locale:
-   - Fixed Ru/Uk locales swap
+   - Fixed Ru/Uk locales swap.
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.10
 Date: 2023-06-06
   Features:
-   - AAI Industry: additional settings for small/big burner/electric engines
-   - SE: removed useless drones recipes of core fragments to keep depot's menu clean
+   - AAI Industry: additional settings for small/big burner/electric engines.
+   - SE: removed useless drones recipes of core fragments to keep depot's menu clean.
   Locale:
-   - Ukrainian texts fixes, tanks to my friend Mikhailo Pidtereba
+   - Ukrainian texts fixes, tanks to my friend Mikhailo Pidtereba.
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.9
 Date: 2023-06-04
