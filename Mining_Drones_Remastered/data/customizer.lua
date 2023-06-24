@@ -18,12 +18,12 @@ if settings.startup["af-mining-drones-sticks"].value then
     table.insert(drone_ingredients, {"iron-stick", cnt*10})
 end
 if settings.startup["af-mining-drones-steel"].value then
-    table.insert(depot_ingredients, {"steel-plate", 20})
+    -- table.insert(depot_ingredients, {"steel-plate", 20})
     table.insert(depot_ingredients, {"steel-chest", 10})
     table.insert(drone_ingredients, {"steel-plate", cnt*2})
     table.insert(prerequisites, "steel-processing")
 else
-    table.insert(depot_ingredients, {"iron-plate", 20})
+    -- table.insert(depot_ingredients, {"iron-plate", 20})
     table.insert(depot_ingredients, {"iron-chest", 10})
 end
 if settings.startup["af-mining-drones-green"].value then
