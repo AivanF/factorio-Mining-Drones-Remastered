@@ -80,7 +80,7 @@ The following languages are supported:
 - Turkish / Türkçe 🇹🇷
 - Ukrainian / Український 🇺🇦
 - Russian / Русский 🇷🇺
-- Chinese / 中国人 🇨🇳
+- Chinese / 中文 🇨🇳
 
 # Final notes
 
