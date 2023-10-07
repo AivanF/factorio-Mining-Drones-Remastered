@@ -11,6 +11,7 @@ local cos = math.cos
 local ceil = math.ceil
 local floor= math.floor
 local pi = math.pi
+local distance = util.distance
 
 local perfmult = settings.startup["af-mining-drones-perf-mult"].value
 
@@ -55,7 +56,7 @@ end
 
 
 local get_drone_mining_speed = function()
-  -- TODO: check entity type and it's speed: some ores require higher mining time
+  -- Then it gets multiplied by get_mining_time
   return 0.5 * perfmult
 end
 
@@ -196,7 +197,6 @@ function lib:request_order()
 end
 
 
-local distance = util.distance
 function lib:distance(position)
   return distance(self.entity.position, position)
 end

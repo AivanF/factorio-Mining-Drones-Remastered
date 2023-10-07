@@ -29,7 +29,7 @@ local technology_effects = {
 }
 
 local recalc_short_cache = function(forces)
-  log("MD2R_recalc_short_cache: "..serpent.block(forces))
+  -- log("MD2R_recalc_short_cache: "..serpent.block(forces))
   for effect, by_force in pairs(script_data.cache_short) do
     for _, force in pairs(forces) do
       by_force[force] = 0
@@ -49,7 +49,7 @@ end
 
 local review_technology = function(technology, do_recalc)
   for name, _ in pairs(technology_effects) do
-    if technology.name:find(name, 0, true) then
+    if technology.researched and technology.name:find(name, 0, true) then
       local force_index = technology.force.index
       script_data.cache_full[force_index] = script_data.cache_full[force_index] or {}
       script_data.cache_full[force_index][name] = technology.level
@@ -99,11 +99,9 @@ lib.on_configuration_changed = function()
     end
   end
   log("MD2R_tech_eview: "..b.." / "..a)
-  log("MD2R_tech_cache_full:")
-  log(serpent.block(script_data.cache_full))
+  -- log("MD2R_tech_cache_full: "..serpent.block(script_data.cache_full))
   recalc_short_cache(game.forces)
-  log("MD2R_tech_cache_short:")
-  log(serpent.block(script_data.cache_short))
+  -- log("MD2R_tech_cache_short: "..serpent.block(script_data.cache_short))
 end
 
 lib.on_load = function()

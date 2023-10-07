@@ -398,10 +398,10 @@ local get_speed_variance = function()
   return (1 + (random() - 0.5) / 3)
 end
 
-local drone_base_speed = 0.05
+local drone_base_speed = 0.1
 
 function mining_depot:get_drone_speed()
-  return (drone_base_speed * (1 + mining_technologies.get_walking_speed_bonus(self.force_index))) * get_speed_variance()
+  return (drone_base_speed * (1 + 0.2 * mining_technologies.get_walking_speed_bonus(self.force_index))) * get_speed_variance()
 end
 
 local direction_shared =

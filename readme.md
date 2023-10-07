@@ -8,7 +8,7 @@ These guys mine for you, based from their mining depot.
 
 Old demonstration video: https://streamable.com/ymk8h
 
-You can mine any ore including modded ones and Uranium, by inputting the required fluid into the back of the depot. The mining area is shown when hovering over a depot, it is a 80x80 area in front of the depot.
+You can mine any ore including modded ones and Uranium, by inputting the required fluid into the depot. The mining area is shown when hovering over a depot, it is a 80x80 area in front of the depot.
 
 ## Math
 Ore mining rate is about 30 per drone per minute, if ore patch is nearby depot. By default, it's up to 100 drones in a depot, so totally 3000 ore pcs per depot per minute. You will have lower rate if ore patch is farther (which will happen naturally due to its exhaustion) and higher rate if you research mining productivity or drones speed technologies.
@@ -59,7 +59,7 @@ Supported & compatible mods:
 - AAI Industry – additional recipe settings for big/small burner/electric motors/engines.
 - Space Exploration – new ores & additional settings.
 - Tiberian Dawn – new ores & auto rescan on their growth.
-- Warptorio2 – everything keep working after warp teleportations; drones benefit from W2 productivity research.
+- Warptorio2 – everything keeps working after warp teleportations; drones benefit from W2 productivity research.
 - Deep core mining, Prospector – ignoring their special resources to keep depot's menu clean.
 - and many more by default! Any new ore is already supported.
 

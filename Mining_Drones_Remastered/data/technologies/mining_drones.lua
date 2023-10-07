@@ -6,10 +6,9 @@ data:extend{{
     {
     icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
     icon_size = 256,
-    icon_mipmaps = 0,
+    icon_mipmaps = 1,
     }
   },
-  upgrade = true,
   effects = {
     {
       type = "unlock-recipe",
