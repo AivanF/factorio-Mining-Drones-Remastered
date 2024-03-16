@@ -186,13 +186,13 @@ local get_item = function(name)
 end
 
 
-local make_recipes = function(entity)
+local make_recipe = function(entity)
 
   if not entity.minable then return end
   for _, bad_ore_name in pairs(ore_blacklist) do
     if entity.name:find(bad_ore_name, 1, true) then return end
   end
-  log("MD2R_make_recipes for "..entity.name)
+  log("MD2R_make_recipe for "..entity.name)
 
   local results = entity.minable.results or {{entity.minable.result}}
   if not next(results) then return end
@@ -234,7 +234,6 @@ local make_recipes = function(entity)
     subgroup = "extraction-machine",
     overload_multiplier = settings.startup["af-mining-drones-capacity"].value,
     hide_from_player_crafting = true,
-    main_product = "",
     allow_decomposition = false,
     allow_as_intermediate = false,
     allow_intermediates = true,
@@ -387,7 +386,7 @@ local custom_tints =
 
 for k, resource in pairs (data.raw.resource) do
   if resource.minable and (resource.minable.result or resource.minable.results) then
-    make_recipes(resource)
+    make_recipe(resource)
     make_resource_attack_proxy(resource)
     local custom = false
     local map_color = resource.map_color or { r = 0.869, g = 0.5, b = 0.130, a = 1 }
