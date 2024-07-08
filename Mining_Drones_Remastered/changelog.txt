@@ -2,7 +2,8 @@
 Version: 2.0.16
 Date: 2025-05-24
   Info:
-   - OmniMatter / OmniFluid prorable support.
+   - OmniMatter / OmniFluid probable support.
+   - Warptorio2x productivity research support.
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.15
 Date: 2023-10-07
