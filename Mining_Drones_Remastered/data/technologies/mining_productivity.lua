@@ -137,7 +137,7 @@ else
   end
 end
 
-if mods["warptorio2"] then
+if data.raw.technology["warptorio-mining-prod-1"] then -- if mods["warptorio2"] then
   -- Show drones in modded prod research
   local research
   for i = 1, 2 do -- seems like effects get copied for higher techs

@@ -9,7 +9,7 @@
 
   "factorio_version": "1.1",
   "dependencies": [
-    "base >= 1.1.0", "? aai-industry", "? space-exploration", "? warptorio2", "(?) omnimatter_compression", "(?) sniper-rifle-improved",
+    "base >= 1.1.0", "? aai-industry", "? space-exploration", "? warptorio2", "? warptorio2x", "(?) omnimatter_compression", "(?) sniper-rifle-improved",
     "! Mining_Drones", "! Mining_Drones_Rebalanced", "! Mining_Drones_GammaEdition", "! Mining_Drones_Energized", "! mining_drones_overloaded", "! Mining-Drones-Tiberium", "! Upgradable_Mining_Drones"
   ]
 }
