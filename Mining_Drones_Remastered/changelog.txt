@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.2
+Date: 2024-10-27
+  Bugfixes:
+   - Fixed "on_configuration_changed missing get_target" error.
+   - Fixed "on_load detected modifications to the 'storage' table" error.
+
+---------------------------------------------------------------------------------------------------
 Version: 2.1.1
 Date: 2024-10-27
   Bugfixes:

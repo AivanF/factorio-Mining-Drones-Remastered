@@ -1456,10 +1456,9 @@ local update_configuration = function(manual)
   end
   local removed_labels = 0
   local all_drawings = rendering.get_all_objects()
-  for _, id in pairs(all_drawings) do
-    local obj = rendering.get_target(id)
-    if obj and obj.entity and obj.entity.name == shared.mining_depot and not alive_labels[id] then
-      rendering.destroy(id)
+  for _, obj in pairs(all_drawings) do
+    if obj and obj.target.entity and obj.target.entity.name == shared.mining_depot and not alive_labels[id] then
+      obj.destroy()
       removed_labels = removed_labels + 1
     end
   end
@@ -1585,15 +1584,15 @@ end
 lib.on_load = function()
   script_data = storage.mining_depot or script_data
 
-  -- TODO: get rid of it! Check script.register_metatable works
-  for k, bucket in pairs (script_data.depots) do
-    for unit_number, depot in pairs (bucket) do
-      setmetatable(depot, depot_metatable)
-    end
-  end
-  for path_request_id, depot in pairs (script_data.path_requests) do
-    setmetatable(depot, depot_metatable)
-  end
+  -- -- TODO: get rid of it! Check script.register_metatable works
+  -- for k, bucket in pairs (script_data.depots) do
+  --   for unit_number, depot in pairs (bucket) do
+  --     setmetatable(depot, depot_metatable)
+  --   end
+  -- end
+  -- for path_request_id, depot in pairs (script_data.path_requests) do
+  --   setmetatable(depot, depot_metatable)
+  -- end
 
   if remote.interfaces["warptorio"] ~= nil then
     log("MD2R_depot: warptorio2 blacklists")
