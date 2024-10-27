@@ -48,6 +48,8 @@ end
 
 local mining_depot = {}
 local depot_metatable = {__index = mining_depot}
+mining_depot.metatable = {__index = mining_depot}
+script.register_metatable("mining_depot", mining_depot.metatable)
 
 
 -- NOTE: fields with the same name of DepotCtrl and script_data may have different types!
@@ -116,10 +118,10 @@ radius_offset[defines.direction.west] = {offset[2] - 0.5, offset[1]}
 radius_offsets[shared.mining_depot] = radius_offset
 
 local custom_drop_offsets = {
-  [0] = {0, 0.5},
-  [2] = {0, 0.5},
-  [4] = {0, -0.5},
-  [6] = {0, 0.5},
+  [defines.direction.north] = {0, 0.5},
+  [defines.direction.east] = {0, 0.5},
+  [defines.direction.south] = {0, -0.5},
+  [defines.direction.west] = {0, 0.5},
 }
 
 function mining_depot:get_drop_offset()
@@ -168,6 +170,8 @@ function mining_depot:add_wall()
   elseif direction == 2 then
     box.right_bottom.x = box.right_bottom.x - 1
   elseif direction == 4 then
+    box.right_bottom.x = box.right_bottom.x - 1
+  elseif direction == 8 then
     box.right_bottom.y = box.right_bottom.y - 1
   else
     box.left_top.x = box.left_top.x + 1
@@ -190,7 +194,7 @@ function mining_depot:add_wall()
     })
   end
 
-  if direction ~= 2 then
+  if direction ~= 4 then
     table.insert(boxes, surface.create_entity
     {
       name = box_name,
@@ -204,7 +208,7 @@ function mining_depot:add_wall()
     })
   end
 
-  if direction ~= 4 then
+  if direction ~= 8 then
     table.insert(boxes, surface.create_entity
     {
       name = box_name,
@@ -218,7 +222,7 @@ function mining_depot:add_wall()
     })
   end
 
-  if direction ~= 6 then
+  if direction ~= 12 then
     table.insert(boxes, surface.create_entity
     {
       name = box_name,
@@ -336,7 +340,7 @@ function mining_depot.new(entity)
     unit_number = entity.unit_number,
     fluid = nil,
   }
-  setmetatable(depot, depot_metatable)
+  setmetatable(depot, mining_depot.metatable)
 
   if not script_data.targeted_resources[depot.surface_index] then
     script_data.targeted_resources[depot.surface_index] = {}
@@ -483,8 +487,8 @@ function mining_depot:update_sticker()
   end
 
   -- Update old one
-  if self.rendering and rendering.is_valid(self.rendering) then
-    rendering.set_text(self.rendering, text)
+  if self.rendering and self.rendering.valid then
+    self.rendering.text = text
     return
   end
 
@@ -527,12 +531,12 @@ function mining_depot:target_name_changed()
   self:find_potential_targets()
 
   if self.rendering then
-    rendering.destroy(self.rendering)
+    self.rendering.destroy()
     self.rendering = nil
   end
 
   if self.pot_animation then
-    rendering.destroy(self.pot_animation)
+    self.pot_animation.destroy()
     self.pot_animation = nil
   end
 
@@ -750,7 +754,7 @@ function mining_depot:get_drone_item_count()
 end
 
 local unique_index = function(entity)
-  return script.register_on_entity_destroyed(entity)
+  return script.register_on_object_destroyed(entity)
 end
 
 
@@ -946,7 +950,7 @@ function mining_depot:take_fluid(amount)
   if not box then log("MD2R: no fluid box!!!") return end
   local current = box.amount
   box.amount = box.amount - amount
-  self.entity.force.fluid_production_statistics.on_flow(self.fluid.name, -amount)
+  self.entity.force.get_fluid_production_statistics(self.entity.surface).on_flow(self.fluid.name, -amount)
   if box.amount == 0 then
     box = nil
   end
@@ -1075,29 +1079,29 @@ function mining_depot:update_energy_usage()
   end
 end
 
-local direction_name =
+local direction_names =
 {
   [0] = "north",
-  [2] = "east",
-  [4] = "south",
-  [6] = "west"
+  [4] = "east",
+  [8] = "south",
+  [12] = "west"
 }
 
 function mining_depot:update_pot()
 
   if not self.target_resource_name or not show_pots then
     if self.pot_animation and rendering.is_valid(self.pot_animation) then
-      rendering.destroy(self.pot_animation)
+      self.pot_animation.destroy()
     end
     return
   end
 
   if not show_pots then return end
 
-  if not (self.pot_animation and rendering.is_valid(self.pot_animation)) then
+  if not (self.pot_animation and self.pot_animation.valid) then
     self.pot_animation = rendering.draw_animation
     {
-      animation = "depot-pot-"..self.target_resource_name.."-"..direction_name[self.entity.direction],
+      animation = "depot-pot-"..self.target_resource_name.."-"..direction_names[self.entity.direction],
       render_layer = "higher-object-under",
       target = self.entity,
       surface = self.entity.surface
@@ -1108,11 +1112,11 @@ function mining_depot:update_pot()
   -- when putting/removing drones.
   local full_ratio = self:get_full_ratio(self:get_drone_item_count() + 20)
   local offset = max(0, min(ceil(full_ratio * 17) - 1, 16))
-  rendering.set_animation_offset(self.pot_animation, offset)
+  self.pot_animation.animation_offset = offset
 end
 
 function mining_depot:on_resource_given()
-  self.entity.surface.create_entity{name = "depot-smoke-"..self.target_resource_name.."-"..direction_name[self.entity.direction], position = self.entity.position}
+  self.entity.surface.create_entity{name = "depot-smoke-"..self.target_resource_name.."-"..direction_names[self.entity.direction], position = self.entity.position}
 end
 
 function mining_depot:return_drone(drone)
@@ -1231,7 +1235,7 @@ end
 local box, mask
 local get_box_and_mask = function()
   if not (box and mask) then
-    local prototype = game.entity_prototypes[shared.drone_name]
+    local prototype = prototypes.entity[shared.drone_name]
     box = prototype.collision_box
     mask = prototype.collision_mask
   end
@@ -1346,15 +1350,26 @@ local reset_all_depots = function()
 end
 
 
-local clear_targeted_resources = function()
-  for k, bucket in pairs (script_data.depots) do
-    for unit_number, depot in pairs (bucket) do
-      depot:cancel_all_orders()
-    end
-  end
-  for k, surface in pairs (script_data.targeted_resources) do
-    script_data.targeted_resources[k] = {}
-  end
+-- local clear_targeted_resources = function()
+--   for k, bucket in pairs (script_data.depots) do
+--     for unit_number, depot in pairs (bucket) do
+--       depot:cancel_all_orders()
+--     end
+--   end
+--   for k, surface in pairs (script_data.targeted_resources) do
+--     script_data.targeted_resources[k] = {}
+--   end
+-- end
+
+local on_object_destroyed = function(event)
+  if event.type ~= defines.target_type.entity then return end
+  local unit_number = event.useful_id
+  local bucket = script_data.depots[unit_number % depot_update_rate]
+  if not bucket then return end
+  local depot = bucket[unit_number]
+  if not depot then return end
+  depot:handle_depot_deletion()
+  bucket[unit_number] = nil
 end
 
 
@@ -1440,7 +1455,7 @@ local update_configuration = function(manual)
     end
   end
   local removed_labels = 0
-  local all_drawings = rendering.get_all_ids()
+  local all_drawings = rendering.get_all_objects()
   for _, id in pairs(all_drawings) do
     local obj = rendering.get_target(id)
     if obj and obj.entity and obj.entity.name == shared.mining_depot and not alive_labels[id] then
@@ -1564,11 +1579,13 @@ lib.events =
 }
 
 lib.on_init = function()
-  global.mining_depot = global.mining_depot or script_data
+  storage.mining_depot = storage.mining_depot or script_data
 end
 
 lib.on_load = function()
-  script_data = global.mining_depot or script_data
+  script_data = storage.mining_depot or script_data
+
+  -- TODO: get rid of it! Check script.register_metatable works
   for k, bucket in pairs (script_data.depots) do
     for unit_number, depot in pairs (bucket) do
       setmetatable(depot, depot_metatable)

@@ -26,12 +26,12 @@ data:extend
     ingredients =
     {
       -- Final ingredients are set in customizer.lua
-      {"iron-plate", 20},
-      {"iron-chest", 10},
-      {"iron-gear-wheel", 10},
-      {"iron-stick", 20},
+      {type = "item", name = "iron-plate", amount = 20},
+      {type = "item", name = "iron-chest", amount = 10},
+      {type = "item", name = "iron-gear-wheel", amount = 10},
+      {type = "item", name = "iron-stick", amount = 20},
     },
     energy_required = 5,
-    result = name
+    results = {{type="item", name=name, amount=1}},
   },
 }

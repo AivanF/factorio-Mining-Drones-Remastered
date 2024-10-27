@@ -240,13 +240,11 @@ local mining_depot =
       production_type = "input",
       pipe_picture = mining_depot_pipes,
       pipe_covers = pipecoverspictures(),
-      base_area = 5,
-      height = 2,
-      base_level = -1,
+      volume = 10,
       pipe_connections =
       {
-        { type="input-output", position = {-3, -0.5} },
-        { type="input-output", position = {3, -0.5} }
+        {direction = 12, flow_direction = "input-output", position = {-2, -0.5} },
+        {direction = 4, flow_direction = "input-output", position = {2, -0.5} }
       },
       secondary_draw_orders =
       {
@@ -256,8 +254,8 @@ local mining_depot =
         west = 50
       }
     },
-    off_when_no_fluid_recipe = true,
   },
+  fluid_boxes_off_when_no_fluid_recipe = true,
   gui_title_key = "mining-depot-choose-resource",
   icon = "__Mining_Drones_Remastered__/data/technologies/mining_drones_tech.png",
   icon_size = 256,
@@ -337,7 +335,7 @@ local mining_depot =
       }
     }
   },
-  working_visualisations = working_visualisations
+  graphics_set = {working_visualisations = working_visualisations}
 }
 
 local depot_energy_interface = {
@@ -350,7 +348,7 @@ local depot_energy_interface = {
 
   energy_source = {
     type = "electric",
-    emissions_per_minute = 0,
+    -- emissions_per_minute = {pollution=0},
     usage_priority = "primary-input",
     -- input_flow_limit = (math.ceil(20 * settings.startup["af-mining-drones-capacity"].value)).."MW",
     buffer_capacity = "0J",
@@ -359,11 +357,10 @@ local depot_energy_interface = {
   energy_usage = "1W",
 
   collision_box = {{ -2.25, -3.75}, { 2.25, 3.75}},
-  collision_mask = {},
+  collision_mask = {layers={}},
   selectable_in_game = false,
-  remove_decoratives = false,
   flags = {
-    "not-rotatable", "placeable-neutral", "placeable-off-grid", "hidden",
+    "not-rotatable", "placeable-neutral", "placeable-off-grid",
     "not-blueprintable", "not-deconstructable", "not-flammable",
   }
 }
@@ -386,7 +383,7 @@ local box =
   type = "highlight-box",
   name = shared.box_name,
   localised_name = mining_depot.localised_name,
-  collision_mask = {"player-layer"}
+  collision_mask = {layers = {player = true}}
 }
 
 local corpse_path = "__Mining_Drones_Remastered__/data/entities/mining_depot/corpse/Scene_layer-"

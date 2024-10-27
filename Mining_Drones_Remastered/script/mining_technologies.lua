@@ -91,7 +91,7 @@ lib.on_configuration_changed = function()
   -- Reset caches
   local a, b = 0, 0
   script_data = deepcopy(script_data_template)
-  global.mining_technologies = script_data
+  storage.mining_technologies = script_data
   for _, force in pairs(game.forces) do
     for _, technology in pairs(force.technologies) do
       a = a + 1
@@ -106,12 +106,12 @@ end
 
 lib.on_load = function()
   log("MD2R_mining_tech_on_load")
-  script_data = global.mining_technologies or script_data
+  script_data = storage.mining_technologies or script_data
 end
 
 lib.on_init = function()
   log("MD2R_mining_tech_on_init")
-  global.mining_technologies = global.mining_technologies or script_data
+  storage.mining_technologies = storage.mining_technologies or script_data
 end
 
 lib.events =

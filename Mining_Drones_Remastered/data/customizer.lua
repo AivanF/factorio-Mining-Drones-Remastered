@@ -10,73 +10,73 @@ local aai = mods["aai-industry"] ~= nil
 local cnt = settings.startup["af-mining-drones-cost-mult"].value
 
 if settings.startup["af-mining-drones-gears"].value then
-    table.insert(depot_ingredients, {"iron-gear-wheel", 20})
-    table.insert(drone_ingredients, {"iron-gear-wheel", cnt*5})
+    table.insert(depot_ingredients, {type="item", name="iron-gear-wheel", amount=20})
+    table.insert(drone_ingredients, {type="item", name="iron-gear-wheel", amount=cnt*5})
 end
 if settings.startup["af-mining-drones-sticks"].value then
-    table.insert(depot_ingredients, {"iron-stick", 20})
-    table.insert(drone_ingredients, {"iron-stick", cnt*10})
+    table.insert(depot_ingredients, {type="item", name="iron-stick", amount=20})
+    table.insert(drone_ingredients, {type="item", name="iron-stick", amount=cnt*10})
 end
 if settings.startup["af-mining-drones-steel"].value then
-    -- table.insert(depot_ingredients, {"steel-plate", 20})
-    table.insert(depot_ingredients, {"steel-chest", 10})
-    table.insert(drone_ingredients, {"steel-plate", cnt*2})
+    -- table.insert(depot_ingredients, {type="item", name="steel-plate", amount=20})
+    table.insert(depot_ingredients, {type="item", name="steel-chest", amount=10})
+    table.insert(drone_ingredients, {type="item", name="steel-plate", amount=cnt*2})
     table.insert(prerequisites, "steel-processing")
 else
-    -- table.insert(depot_ingredients, {"iron-plate", 20})
-    table.insert(depot_ingredients, {"iron-chest", 10})
+    -- table.insert(depot_ingredients, {type="item", name="iron-plate", amount=20})
+    table.insert(depot_ingredients, {type="item", name="iron-chest", amount=10})
 end
 if settings.startup["af-mining-drones-green"].value then
-    table.insert(depot_ingredients, {"electronic-circuit", 20})
-    table.insert(drone_ingredients, {"electronic-circuit", cnt*2})
+    table.insert(depot_ingredients, {type="item", name="electronic-circuit", amount=20})
+    table.insert(drone_ingredients, {type="item", name="electronic-circuit", amount=cnt*2})
     table.insert(prerequisites, "electronics")
 end
 if settings.startup["af-mining-drones-red"].value then
-    table.insert(depot_ingredients, {"advanced-circuit", 20})
-    table.insert(drone_ingredients, {"advanced-circuit", cnt*1})
-    table.insert(prerequisites, "advanced-electronics")
+    table.insert(depot_ingredients, {type="item", name="advanced-circuit", amount=20})
+    table.insert(drone_ingredients, {type="item", name="advanced-circuit", amount=cnt*1})
+    -- table.insert(prerequisites, "advanced-electronics")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-blue"].value then
-    table.insert(depot_ingredients, {"processing-unit", 10})
-    table.insert(drone_ingredients, {"processing-unit", cnt*1})
-    table.insert(prerequisites, "advanced-electronics-2")
+    table.insert(depot_ingredients, {type="item", name="processing-unit", amount=10})
+    table.insert(drone_ingredients, {type="item", name="processing-unit", amount=cnt*1})
+    -- table.insert(prerequisites, "advanced-electronics-2")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-battery"].value then
-    table.insert(depot_ingredients, {"battery", 10})
-    table.insert(drone_ingredients, {"battery", cnt*1})
+    table.insert(depot_ingredients, {type="item", name="battery", amount=10})
+    table.insert(drone_ingredients, {type="item", name="battery", amount=cnt*1})
     table.insert(prerequisites, "battery")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-engine"].value and not aai then
-    table.insert(drone_ingredients, {"engine-unit", cnt*1})
+    table.insert(drone_ingredients, {type="item", name="engine-unit", amount=cnt*1})
     table.insert(prerequisites, "engine")
     need_logistics = true
 end
 if settings.startup["af-mining-drones-elengine"].value and not aai then
-    table.insert(drone_ingredients, {"electric-engine-unit", cnt*1})
+    table.insert(drone_ingredients, {type="item", name="electric-engine-unit", amount=cnt*1})
     table.insert(prerequisites, "electric-engine")
     need_chemistry = true
 end
 if settings.startup["af-mining-drones-eldrill"].value then
-    table.insert(drone_ingredients, {"electric-mining-drill", cnt*1})
+    table.insert(drone_ingredients, {type="item", name="electric-mining-drill", amount=cnt*1})
     -- TODO: add prerequisites, science packs for overhaul mods
 end
 
 if aai then
     if settings.startup["af-mining-drones-aai-motor"].value then
-        table.insert(drone_ingredients, {"motor", cnt*1})
+        table.insert(drone_ingredients, {type="item", name="motor", amount=cnt*1})
     end
     if settings.startup["af-mining-drones-aai-elmotor"].value then
-        table.insert(drone_ingredients, {"electric-motor", cnt*1})
+        table.insert(drone_ingredients, {type="item", name="electric-motor", amount=cnt*1})
     end
     if settings.startup["af-mining-drones-aai-engine"].value then
-        table.insert(drone_ingredients, {"engine-unit", cnt*1})
+        table.insert(drone_ingredients, {type="item", name="engine-unit", amount=cnt*1})
         table.insert(prerequisites, "engine")
     end
     if settings.startup["af-mining-drones-aai-elengine"].value then
-        table.insert(drone_ingredients, {"electric-engine-unit", cnt*1})
+        table.insert(drone_ingredients, {type="item", name="electric-engine-unit", amount=cnt*1})
         table.insert(prerequisites, "electric-engine")
     end
 end
