@@ -1411,7 +1411,7 @@ end
 
 
 local update_configuration = function(manual)
-  -- Migrate from other mod v1
+  -- Migrate from other MD mods
   if #script_data.depots == 0 then
     script_data.big_migration = false
     script_data.reset_corpses = false
@@ -1451,13 +1451,19 @@ local update_configuration = function(manual)
   local alive_labels = {}
   for _, depot in pairs(script_data.depots) do
     if depot.rendering then
-      alive_labels[depot.rendering] = true
+      alive_labels[depot.rendering.id] = true
     end
   end
   local removed_labels = 0
   local all_drawings = rendering.get_all_objects()
   for _, obj in pairs(all_drawings) do
-    if obj and obj.target.entity and obj.target.entity.name == shared.mining_depot and not alive_labels[id] then
+    if (obj
+      and obj.type == "text"
+      -- `target` property is missing on many other types
+      and obj.target.entity
+      and obj.target.entity.name == shared.mining_depot
+      and not alive_labels[obj.id]
+    ) then
       obj.destroy()
       removed_labels = removed_labels + 1
     end
