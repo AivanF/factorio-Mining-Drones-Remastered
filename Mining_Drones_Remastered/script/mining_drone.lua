@@ -172,10 +172,9 @@ function lib:process_mining()
 
   local pollution_count = 0
   local mine_opts = {inventory = self.inventory}
-  local mine = target.mine
   for k = 1, self.mining_count do
     if target.valid then
-      mine(mine_opts)
+      target.mine(mine_opts)
       pollution_count = pollution_count + 1
     else
       self:clear_mining_target()

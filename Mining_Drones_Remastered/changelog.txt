@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.4
+Date: 2024-11-10
+  Bugfixes:
+   - Removed damage technology effects of invisible attack proxy objects.
+  Changes:
+   - Removed some old code, hopefully no bugs will appear.
+   - New thumbnail picture!
+
+---------------------------------------------------------------------------------------------------
 Version: 2.1.3
 Date: 2024-10-28
   Bugfixes:

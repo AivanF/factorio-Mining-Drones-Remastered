@@ -25,7 +25,8 @@ local empty_attack_parameters = function()
   return
   {
     type = "projectile",
-    ammo_category = "bullet",
+    ammo_category = util.ammo_category("mining-drone"),
+    hidden = true,
     cooldown = 1,
     range = 0,
     ammo_type =
@@ -209,7 +210,12 @@ local make_recipe = function(entity)
     local name = result.name or result[1]
     local item_prototype = get_item(name)
     if item_prototype then
-      table.insert(recipe_results, {type = "item", name = name, amount = (2 ^ 16) - 1, show_details_in_recipe_tooltip = false})
+      table.insert(recipe_results, {
+        type = "item",
+        name = name,
+        amount = (2 ^ 16) - 1,
+        show_details_in_recipe_tooltip = false,
+      })
     end
   end
 
@@ -226,6 +232,7 @@ local make_recipe = function(entity)
     icon_size = entity.icon_size,
     icons = entity.icons,
     icon_mipmap = entity.icon_mipmap,
+    order = entity.order or entity.name,
     ingredients =
     {
       {type = "item", name = shared.drone_name, amount = 1},
@@ -238,10 +245,9 @@ local make_recipe = function(entity)
     hide_from_player_crafting = true,
     allow_decomposition = false,
     allow_as_intermediate = false,
-    allow_intermediates = true,
-    order = entity.order or entity.name,
+    allow_intermediates = false,
     allow_inserter_overload = false,
-    energy_required = 1.166
+    energy_required = 42,
   }
   data:extend{recipe}
 
@@ -316,6 +322,8 @@ local make_resource_attack_proxy = function(resource)
   {
     type = "unit",
     name = shared.attack_proxy_name..resource.name,
+    hidden = true,
+    hidden_in_factoriopedia = true,
     icon = "__base__/graphics/icons/ship-wreck/small-ship-wreck.png",
     icon_size = 32,
     flags = proxy_flags,

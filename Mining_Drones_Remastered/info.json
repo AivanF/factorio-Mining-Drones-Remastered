@@ -1,11 +1,11 @@
 {
   "name": "Mining_Drones_Remastered",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "title": "Mining Drones 2 Remastered",
   "author": "AivanF",
   "contact": "https://discord.gg/7QCXn35mU5",
   "homepage": "https://mods.factorio.com/mod/Mining_Drones_Remastered",
-  "description": "Adds mining drones and depots providing great yet cusomisable balance: robust drones recipe ingredients instead of pure iron, normal pollution rate, electric energy usage, and much more.\nEverything is configurable, many mods supported, check out mod Homepage  or startup and map settings ^_^\nLocales: English, Deutsch, Español, Français, Türkçe, Український, Русский, 中文",
+  "description": "Adds mining drones and depots providing great yet cusomisable balance: robust drones recipe ingredients instead of pure iron, normal pollution rate, electric energy usage, and much more.\n\nEverything is configurable, many mods supported, check out mod Homepage, or startup and map settings ^_^\n\nLocales: English, Deutsch, Español, Français, Türkçe, Український, Русский, 中文",
 
   "factorio_version": "2.0",
   "dependencies": [
