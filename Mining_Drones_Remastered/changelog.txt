@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.5
+Date: 2025-06-17
+  Bugfixes:
+   - Fixed crash error due to broken Factorio API. Sorry for being so late. Thanks to TheAngel from our Discord for the help.
+
+---------------------------------------------------------------------------------------------------
 Version: 2.1.4
 Date: 2024-11-10
   Bugfixes:

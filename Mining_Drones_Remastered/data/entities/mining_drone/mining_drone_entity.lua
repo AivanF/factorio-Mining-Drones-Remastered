@@ -4,7 +4,7 @@ function gaussian (mean, variance)
           math.cos(2 * math.pi * math.random()) + mean
 end
 
-local sound = data.raw.tile["grass-1"].walking_sound
+local sound = data.raw.tile["grass-1"].walking_sound.variations
 
 local mining_drone_flags = {"placeable-off-grid", "not-in-kill-statistics"}
 
