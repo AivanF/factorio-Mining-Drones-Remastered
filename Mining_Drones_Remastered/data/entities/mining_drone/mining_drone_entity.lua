@@ -176,6 +176,7 @@ local make_drone = function(name, tint, item)
   util.recursive_hack_scale(corpse, random_height)
 
   corpse.name = bot_name.."-corpse"
+  corpse.time_to_live = 6000
   corpse.selectable_in_game = false
   corpse.selection_box = nil
   corpse.render_layer = "remnants"
