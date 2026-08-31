@@ -237,7 +237,7 @@ function mining_depot:add_wall()
   end
 
   for k, v in pairs (boxes) do
-    v.active = false
+    v.disabled_by_script = true
   end
 
   self.boxes = boxes
@@ -353,7 +353,7 @@ function mining_depot.new(entity)
 
   add_to_bucket(depot)
 
-  entity.active = false
+  entity.disabled_by_script = true
 
   --[[
     local area = depot:get_area()

@@ -119,7 +119,7 @@ function lib:make_attack_proxy()
   end
   local proxy = entity.surface.create_entity{name = get_proxy_name(entity), position = position, force = "neutral"}
   proxy.health = number_of_hits * mining_damage
-  proxy.active = false
+  proxy.disabled_by_script = true
 
   self.attack_proxy = proxy
 end

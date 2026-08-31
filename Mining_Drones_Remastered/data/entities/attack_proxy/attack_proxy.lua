@@ -182,7 +182,7 @@ local proxy_flags = {"placeable-neutral", "placeable-off-grid", "not-on-map", "n
 --local proxy_flags = {"placeable-neutral", "placeable-off-grid", "not-on-map"}
 
 local items = data.raw.item
-local tools = data.raw.tool
+local tools = data.raw.tool or {}
 local get_item = function(name)
   if items[name] then return items[name] end
   if tools[name] then return tools[name] end
@@ -239,7 +239,7 @@ local make_recipe = function(entity)
       fluid and {type = "fluid", name = fluid, amount = entity.minable.fluid_amount * 10}
     },
     results = recipe_results,
-    category = shared.mining_depot,
+    categories = {shared.mining_depot},
     subgroup = "extraction-machine",
     overload_multiplier = settings.startup["af-mining-drones-capacity"].value,
     hide_from_player_crafting = true,
@@ -247,6 +247,8 @@ local make_recipe = function(entity)
     allow_as_intermediate = false,
     allow_intermediates = false,
     allow_inserter_overload = false,
+    can_set_quality = false,
+    auto_recycle = false,
     energy_required = 42,
   }
   data:extend{recipe}
