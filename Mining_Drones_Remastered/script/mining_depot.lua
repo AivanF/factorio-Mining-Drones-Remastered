@@ -546,7 +546,11 @@ end
 function mining_depot:get_required_fluid()
   local recipe = self.entity.get_recipe()
   if not recipe then return end
-  return recipe.ingredients[2]
+  for k, ingredient in pairs (recipe.ingredients) do
+    if ingredient.type == "fluid" then
+      return {name = ingredient.name, amount = ingredient.amount}
+    end
+  end
 end
 
 
@@ -737,16 +741,7 @@ end
 
 function mining_depot:has_enough_fluid()
   if not self.fluid then return true end
-  local box = self:get_input_fluidbox()
-  if not box then return false end
-
-  return box.amount >= (self.fluid.amount / 10)
-end
-
-function mining_depot:get_input_fluidbox()
-  local fluidbox = self.entity.fluidbox
-  if #fluidbox == 0 then return end
-  return fluidbox[1]
+  return self.entity.get_fluid_count(self.fluid.name) >= (self.fluid.amount / 10)
 end
 
 function mining_depot:get_drone_item_count()
@@ -921,19 +916,16 @@ function mining_depot:order_drone(drone, entity) -- entity is ore
   local mining_count = self:get_mining_count(entity)
 
   if self.fluid then
-    local box = self:get_input_fluidbox()
-    if not box then
-      self:add_mining_target(entity)
-      return
-    end
-    local needed_fluid = (self.fluid.amount / 100) * mining_count
-    if box.amount < needed_fluid then
-      local mining_count = floor(box.amount / (self.fluid.amount / 100))
-      if mining_count == 0 then
+    local available = self.entity.get_fluid_count(self.fluid.name)
+    local fluid_per_mine = self.fluid.amount / 100
+    local needed_fluid = fluid_per_mine * mining_count
+    if available < needed_fluid then
+      mining_count = floor(available / fluid_per_mine)
+      if mining_count <= 0 then
         self:add_mining_target(entity)
         return
       end
-      needed_fluid = (self.fluid.amount / 100) * mining_count
+      needed_fluid = fluid_per_mine * mining_count
     end
     self:take_fluid(needed_fluid)
   end
@@ -946,15 +938,10 @@ function mining_depot:order_drone(drone, entity) -- entity is ore
 end
 
 function mining_depot:take_fluid(amount)
-  local box = self:get_input_fluidbox()
-  if not box then log("MD2R: no fluid box!!!") return end
-  local current = box.amount
-  box.amount = box.amount - amount
-  self.entity.force.get_fluid_production_statistics(self.entity.surface).on_flow(self.fluid.name, -amount)
-  if box.amount == 0 then
-    box = nil
+  local removed = self.entity.extract_fluid{name = self.fluid.name, amount = amount}
+  if removed > 0 then
+    self.entity.force.get_fluid_production_statistics(self.entity.surface).on_flow(self.fluid.name, -removed)
   end
-  self.entity.fluidbox[1] = box
 end
 
 function mining_depot:take_energy()
@@ -1313,6 +1300,9 @@ end
 
 function mining_depot:check_for_rescan()
   if self.target_resource_name == self:get_target_resource_name() then
+    -- The recipe kept its name, but a mod update can still have changed what it needs,
+    -- so the fluid requirement is always recalculated.
+    self.fluid = self:get_required_fluid()
     return
   end
   self:target_name_changed()
