@@ -8,12 +8,12 @@ These guys mine for you, based from their mining depot.
 
 Old demonstration video: https://streamable.com/ymk8h
 
-You can mine any ore including modded ones and Uranium, by inputting the required fluid into the depot. The mining area is shown when hovering over a depot, it is a 80x80 area in front of the depot.
+You can mine any ore including modded ones and Uranium, by inputting the required fluid into the depot. The mining area is shown when hovering over a depot, it is a 51x51 area in front of the depot.
 
 ## Math
 Ore mining rate is about 30 per drone per minute, if ore patch is nearby depot. By default, it's up to 100 drones in a depot, so totally 3000 ore pcs per depot per minute. You will have lower rate if ore patch is farther (which will happen naturally due to its exhaustion) and higher rate if you research mining productivity or drones speed technologies.
 
-# v2.0 Features
+# The Remastered Features
 
 ## 1. Technology
 You need to research a technology to unlock Drones and Depots.
@@ -46,6 +46,8 @@ I removed additional Productivity research for mining drones, now vanilla one is
 ## 7. Disableable Drills
 Also you can disable Burner or Electric Mining Drills to live with drones only!
 
+With Space Age there is a third option for the Big Mining Drill. Turn it on and the drill, its recipe and its technology all go away, with Tungsten steel unlocked by crafting a Foundry instead. Leave it off and the big drill stays available: if you removed the electric mining drill, its recipe simply asks for steel plates in place of one.
+
 ## 8. Ore Auto Loading
 If you accidentally grab ore from a depot, it will be put back when you open it `:)`
 
@@ -57,6 +59,7 @@ I spent several hours to burn my brain, but made migration process from original
 
 Supported & compatible mods:
 - AAI Industry – additional recipe settings for big/small burner/electric motors/engines.
+- Space Age – new ores; the Big Mining Drill is kept craftable, or removable, when you disable vanilla drills.
 - Space Exploration – new ores & additional settings.
 - Tiberian Dawn – new ores & auto rescan on their growth.
 - Warptorio2 – everything keeps working after warp teleportations; drones benefit from W2 productivity research.
@@ -77,6 +80,7 @@ The following languages are supported:
 - German / Deutsch 🇩🇪
 - Spanish / Español 🇪🇸
 - French / Français 🇫🇷
+- Polish / Polski 🇵🇱
 - Turkish / Türkçe 🇹🇷
 - Ukrainian / Український 🇺🇦
 - Russian / Русский 🇷🇺
