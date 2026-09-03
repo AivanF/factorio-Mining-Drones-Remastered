@@ -93,6 +93,13 @@ data:extend({
         default_value = false,
         order = "2-02",
     },
+    {
+        type = "bool-setting",
+        name = "af-mining-drones-sa-no-big-drill",
+        setting_type = "startup",
+        default_value = false,
+        order = "2-03",
+    },
 
     -- Other mods related
     {

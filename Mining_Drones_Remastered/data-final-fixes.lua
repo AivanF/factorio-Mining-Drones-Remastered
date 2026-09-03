@@ -26,3 +26,4 @@ shared.mining_drone_collision_mask = {
 }
 
 require("data/entities/attack_proxy/attack_proxy")
+require("data/disable_drills")

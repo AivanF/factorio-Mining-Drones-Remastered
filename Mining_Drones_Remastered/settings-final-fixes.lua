@@ -1,3 +1,7 @@
+if not mods["space-age"] then
+  data.raw["bool-setting"]["af-mining-drones-sa-no-big-drill"].hidden = true
+end
+
 if mods["space-exploration"] then
   data.raw["bool-setting"]["af-mining-drones-no-burner-drill"].hidden = true
   data.raw["bool-setting"]["af-mining-drones-no-electric-drill"].hidden = true

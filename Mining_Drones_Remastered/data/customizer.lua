@@ -98,28 +98,3 @@ end
 
 data.raw.technology[shared.drone_name].prerequisites = prerequisites
 data.raw.technology[shared.drone_name].unit.ingredients = tech_ingredients
-
-
--- Optionally disable vanilla mining drills
-function hideRecipe(recipe)
-    recipe.hidden = true
-    recipe.enabled = false
-    if recipe.normal then
-        recipe.normal.hidden = true
-        recipe.normal.enabled = false
-        recipe.expensive.hidden = true
-        recipe.expensive.enabled = false
-    end
-end
-
-if settings.startup["af-mining-drones-no-burner-drill"].value then
-    data.raw.item["burner-mining-drill"].flags = { "hidden" }
-    data.raw["mining-drill"]["burner-mining-drill"].flags = { "hidden" }
-    hideRecipe(data.raw.recipe["burner-mining-drill"])
-end
-
-if settings.startup["af-mining-drones-no-electric-drill"].value then
-    data.raw.item["electric-mining-drill"].flags = { "hidden" }
-    data.raw["mining-drill"]["electric-mining-drill"].flags = { "hidden" }
-    hideRecipe(data.raw.recipe["electric-mining-drill"])
-end
