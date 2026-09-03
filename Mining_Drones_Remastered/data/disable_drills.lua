@@ -115,11 +115,17 @@ end
 local big_drill = "big-mining-drill"
 local remove_big_drill = settings.startup["af-mining-drones-sa-no-big-drill"].value
 
-if settings.startup["af-mining-drones-no-burner-drill"].value then
+-- Space Exploration hides both vanilla drill settings (see settings-final-fixes.lua), so
+-- their effect has to stop too. A player who switched one on before installing SE would
+-- otherwise be left with drills removed and no visible way back, since a mod cannot
+-- rewrite a startup setting -- reported on the portal as "Burner Drill perma-disabled".
+local vanilla_drills_removable = not mods["space-exploration"]
+
+if vanilla_drills_removable and settings.startup["af-mining-drones-no-burner-drill"].value then
     disable_drill("burner-mining-drill")
 end
 
-if settings.startup["af-mining-drones-no-electric-drill"].value then
+if vanilla_drills_removable and settings.startup["af-mining-drones-no-electric-drill"].value then
     disable_drill("electric-mining-drill")
 
     -- Space Age builds the big mining drill out of an electric one, which no longer has a
