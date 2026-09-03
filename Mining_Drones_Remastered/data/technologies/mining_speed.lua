@@ -102,9 +102,9 @@ for k, ingredients in pairs (levels) do
       {
         icon = "__core__/graphics/icons/technology/constants/constant-movement-speed.png",
         icon_size = 128,
-        --scale = 2,
-        icon_mipmaps = 3,
-        shift = {100, 100},
+        scale = 0.5,
+        shift = {50, 50},
+        floating = true,
       }
     },
     upgrade = true,
@@ -139,9 +139,9 @@ local infinite =
     {
       icon = "__core__/graphics/icons/technology/constants/constant-movement-speed.png",
       icon_size = 128,
-      --scale = 2,
-      icon_mipmaps = 3,
-      shift = {100, 100},
+      scale = 0.5,
+      shift = {50, 50},
+      floating = true,
     }
   },
   upgrade = true,
