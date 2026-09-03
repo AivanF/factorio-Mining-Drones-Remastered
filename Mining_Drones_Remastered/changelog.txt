@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.2.1
+Date: 2026-09-03
+  Features:
+   - New Space Age setting to remove the Big mining drill: its technology is removed too,
+     and Tungsten steel becomes unlocked by crafting a Foundry instead.
+  Bugfixes:
+   - Fixed error with fluid usage (like for uranium ore).
+   - Fixed loading error when removing vanilla mining drills.
+   - Removing the electric mining drill no longer makes the Big mining drill uncraftable:
+     its recipe asks for steel plates instead.
+   - Fixed drone speed and productivity technology icons being covered by their badge.
+   - Mining productivity research now actually applies to drone output.
+   - Drill removal settings no longer keep working after Space Exploration hides them.
+
+---------------------------------------------------------------------------------------------------
 Version: 2.2.0
 Date: 2026-08-31
   Changes:
