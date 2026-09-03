@@ -219,20 +219,7 @@ function lib:process_return_to_depot()
   end
 
   local target_inventory = depot:get_output_inventory()
-  local productivity_bonus = 1 + mining_technologies.get_productivity_bonus(self.force_index)
-  local chance = productivity_bonus % 1
-  productivity_bonus = productivity_bonus - chance
-
-  if chance > random() then
-    productivity_bonus = productivity_bonus + 1
-  end
-
-  -- local item_flow = self.entity.force.item_production_statistics.on_flow
-  -- for name, count in pairs (self.inventory.get_contents()) do
-  --   local real_count = ceil(count * productivity_bonus)
-  --   target_inventory.insert({name = name, count = real_count})
-  --   item_flow(name, real_count)
-  -- end
+  local productivity_bonus = mining_technologies.get_productivity_bonus(self.force_index)
 
   local item_flow = self.entity.force.get_item_production_statistics(self.entity.surface).on_flow
   for k = 1, #self.inventory do
@@ -241,8 +228,25 @@ function lib:process_return_to_depot()
       break
     end
     local name = stack.name
-    --local quality = stack.quality
+    local quality = stack.quality and stack.quality.name
     local inserted = target_inventory.insert(stack)
+
+    -- Mining productivity yields extra ore without costing the patch, so it is paid out
+    -- here on delivery rather than at mining time. It scales by what actually fit: a full
+    -- depot must not be credited for items it never received. The fractional part is
+    -- rolled per stack instead of truncated, so early research levels still pay out on
+    -- average rather than rounding away to nothing.
+    if inserted > 0 and productivity_bonus > 0 then
+      local extra = inserted * productivity_bonus
+      local whole = floor(extra)
+      if extra - whole > random() then
+        whole = whole + 1
+      end
+      if whole > 0 then
+        inserted = inserted + target_inventory.insert{name = name, count = whole, quality = quality}
+      end
+    end
+
     item_flow(name, inserted)
   end
 
