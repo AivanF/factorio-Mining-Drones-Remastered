@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.3.0
+Date: 2026-09-05
+  Features:
+   - Quality support: a depot outputs ore at the quality chosen on its recipe, at a yield penalty of a configurable share per quality step. Drones must match that quality, and a depot cannot exceed its own quality.
+   - New statistics panel attached to the depot window: ore mined, ore after productivity, ore delivered and the current quality yield.
+   - The depot now reports why it is idle - no resource, nothing in range, missing drones, fluid, electricity or too high a recipe quality - instead of just "disabled by script".
+  Bugfixes:
+   - Fixed a crash whenever a mining drone died, from an inventory define renamed in Factorio 2.0.
+
+---------------------------------------------------------------------------------------------------
 Version: 2.2.1
 Date: 2026-09-03
   Features:

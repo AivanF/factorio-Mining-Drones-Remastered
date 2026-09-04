@@ -58,8 +58,9 @@ I spent several hours to burn my brain, but made migration process from original
 ## 10. Mods compatibility
 
 Supported & compatible mods:
-- AAI Industry – additional recipe settings for big/small burner/electric motors/engines.
 - Space Age – new ores; the Big Mining Drill is kept craftable, or removable, when you disable vanilla drills.
+- Quality – you can mine quality ore, but this requires depots and drones of the same or higher quality, and yields less ore amounts according to the tier.
+- AAI Industry – additional recipe settings for big/small burner/electric motors/engines.
 - Space Exploration – new ores & additional settings.
 - Tiberian Dawn – new ores & auto rescan on their growth.
 - Warptorio2 – everything keeps working after warp teleportations; drones benefit from W2 productivity research.

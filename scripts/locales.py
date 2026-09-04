@@ -1,5 +1,4 @@
 __author__ = 'AivanF'
-__contact__ = 'projects@aivanf.com'
 
 import re
 from translinguer import Translinguer

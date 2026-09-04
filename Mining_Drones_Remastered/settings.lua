@@ -100,6 +100,15 @@ data:extend({
         default_value = false,
         order = "2-03",
     },
+    {
+        type = "int-setting",
+        name = "af-mining-drones-quality-cascade",
+        setting_type = "startup",
+        minimum_value = 1,
+        maximum_value = 50,
+        default_value = 10,
+        order = "2-04",
+    },
 
     -- Other mods related
     {

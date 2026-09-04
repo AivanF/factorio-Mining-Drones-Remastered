@@ -524,6 +524,7 @@ function mining_depot:target_name_changed()
 
   self.target_resource_name = self:get_target_resource_name()
   self.fluid = self:get_required_fluid()
+  self:reset_yield_stats()
 
   self:clear_path_requests()
   self:cancel_all_orders()
@@ -591,7 +592,10 @@ function mining_depot:update()
     return
   end
 
-  if not item then return end
+  if not item then
+    self:set_status("no-recipe")
+    return
+  end
 
   self:update_pot()
   self:update_energy_usage()
@@ -606,6 +610,7 @@ function mining_depot:update()
 
     if not self.mined_any then
       -- Last time we rescanned, and we didn't mine anything, so lets give up.
+      self:set_status("no-targets")
       self:add_no_items_alert()
       return
     end
@@ -614,9 +619,28 @@ function mining_depot:update()
 
   end
 
-  if not self:has_enough_fluid() or not self:has_enough_energy() then
+  self:check_quality_change()
+
+  if not self:quality_within_reach() then
+    self:set_status("quality-too-high")
     return
   end
+  if self:get_drone_item_count() == 0 then
+    self:set_status("no-drones")
+    return
+  end
+
+  if not self:has_enough_fluid() then
+    self:set_status("no-fluid")
+    return
+  end
+
+  if not self:has_enough_energy() then
+    self:set_status("no-energy")
+    return
+  end
+
+  self:set_status("working")
 
   self:try_to_mine_targets()
 
@@ -744,8 +768,27 @@ function mining_depot:has_enough_fluid()
   return self.entity.get_fluid_count(self.fluid.name) >= (self.fluid.amount / 10)
 end
 
+-- Drones are a recipe ingredient, so on a quality recipe the depot holds drones of that
+-- quality - and an item lookup without a quality means *normal*. Counting and consuming
+-- them blind therefore found nothing on any recipe above normal, and the depot simply
+-- sat there. Walk the slots so only `stack.name` / `stack.quality` are relied on.
 function mining_depot:get_drone_item_count()
-  return self.entity.get_item_count(shared.drone_name)
+  local inventory = self:get_drone_inventory()
+  if not (inventory and inventory.valid) then return 0 end
+
+  local quality = self:get_recipe_quality()
+  local wanted = quality and quality.name or "normal"
+
+  local count = 0
+  for k = 1, #inventory do
+    local stack = inventory[k]
+    if stack and stack.valid_for_read and stack.name == shared.drone_name then
+      if (stack.quality and stack.quality.name or "normal") == wanted then
+        count = count + stack.count
+      end
+    end
+  end
+  return count
 end
 
 local unique_index = function(entity)
@@ -890,7 +933,15 @@ end
 function mining_depot:remove_drone(drone, remove_item)
 
   if remove_item then
-    self:get_drone_inventory().remove{name = shared.drone_name, count = 1}
+    local inventory = self:get_drone_inventory()
+    if inventory then
+      inventory.remove
+      {
+        name = shared.drone_name,
+        count = 1,
+        quality = self:get_recipe_quality()
+      }
+    end
   end
 
   local mining_target = drone.mining_target
@@ -975,8 +1026,15 @@ function mining_depot:get_output_inventory()
   return self.entity.get_output_inventory()
 end
 
+-- Factorio 2.0 unified crafting machines and renamed this define; the old name is kept as
+-- a fallback so either version works. Resolved once, since `defines` never changes.
+local drone_inventory_index =
+  defines.inventory.crafter_input or
+  defines.inventory.assembling_machine_input
+
 function mining_depot:get_drone_inventory()
-  return self.entity.get_inventory(defines.inventory.assembling_machine_input)
+  if not drone_inventory_index then return end
+  return self.entity.get_inventory(drone_inventory_index)
 end
 
 function mining_depot:get_target_resource_name()
@@ -984,6 +1042,134 @@ function mining_depot:get_target_resource_name()
   if not recipe then return end
   local name = recipe.name:sub(("mine-"):len() + 1, recipe.name:len())
   return name
+end
+
+-- Quality
+--
+-- Ore is mined at normal quality; the quality the player picks on the recipe is what the
+-- depot *outputs*, at a yield penalty of `cascade ^ tier`. The multiplier is derived from
+-- the startup setting every time it is needed rather than stored, so changing the setting
+-- takes effect without migrating anything.
+
+local quality_cascade = settings.startup["af-mining-drones-quality-cascade"].value / 100
+
+-- The depot is permanently `disabled_by_script`, since the script does the work rather
+-- than the machine, so without these every state looks identical from the outside.
+local custom_statuses =
+{
+  ["working"]          = {diode = defines.entity_status_diode.green,  label = {"mining-depot-status-working"}},
+  ["no-recipe"]        = {diode = defines.entity_status_diode.red,    label = {"mining-depot-status-no-recipe"}},
+  ["no-targets"]       = {diode = defines.entity_status_diode.red,    label = {"mining-depot-status-no-targets"}},
+  ["quality-too-high"] = {diode = defines.entity_status_diode.red,    label = {"mining-depot-status-quality-too-high"}},
+  ["no-drones"]        = {diode = defines.entity_status_diode.yellow, label = {"mining-depot-status-no-drones"}},
+  ["no-fluid"]         = {diode = defines.entity_status_diode.yellow, label = {"mining-depot-status-no-fluid"}},
+  ["no-energy"]        = {diode = defines.entity_status_diode.yellow, label = {"mining-depot-status-no-energy"}},
+}
+
+function mining_depot:set_status(status)
+  if self.status == status then return end
+  self.status = status
+  self.entity.custom_status = status and custom_statuses[status] or nil
+end
+
+function mining_depot:get_recipe_quality()
+  local recipe, quality = self.entity.get_recipe()
+  return quality
+end
+
+-- `level` is NOT a step count: vanilla numbers legendary as 5 with nothing at 4, so
+-- raising the cascade to the power of the level would charge legendary an extra tier that
+-- does not exist. Walk the `next` chain instead, which is the real number of upgrade steps
+-- and also copes with modded quality tiers. Rebuilt per session, so a config change that
+-- adds qualities cannot leave it stale.
+local quality_steps
+
+local get_quality_steps = function()
+  if quality_steps then return quality_steps end
+  quality_steps = {}
+  local current, steps = prototypes.quality["normal"], 0
+  while current and steps < 64 do
+    quality_steps[current.name] = steps
+    steps = steps + 1
+    current = current.next
+  end
+  return quality_steps
+end
+
+local steps_of = function(quality)
+  if not quality then return 0 end
+  return get_quality_steps()[quality.name] or quality.level or 0
+end
+
+function mining_depot:get_quality_steps()
+  return steps_of(self:get_recipe_quality())
+end
+
+function mining_depot:get_quality_multiplier()
+  local steps = self:get_quality_steps()
+  if steps <= 0 then return 1 end
+  return quality_cascade ^ steps
+end
+
+-- A depot can only produce ore up to its own quality, so a legendary run needs a
+-- legendary depot. Refused rather than silently ignored, or nobody would know why the
+-- depot is idle.
+function mining_depot:quality_within_reach()
+  return self:get_quality_steps() <= steps_of(self.entity.quality)
+end
+
+function mining_depot:reset_yield_stats()
+  self.mined_total = 0
+  self.mined_with_productivity = 0
+  self.yielded_total = 0
+  self.output_carry = {}
+end
+
+-- The recipe name is unchanged when only the quality is switched, so that needs its own
+-- check; the statistics describe one ore at one quality and would be meaningless across a
+-- change.
+function mining_depot:check_quality_change()
+  local quality = self:get_recipe_quality()
+  local name = quality and quality.name or "normal"
+  if self.recipe_quality_name == name then return end
+  self.recipe_quality_name = name
+  self:reset_yield_stats()
+end
+
+-- Converts what a drone actually mined into depot output, and keeps the three running
+-- totals the statistics are read from.
+--
+-- The fractional part is carried rather than rounded: at high quality the expected yield
+-- per delivery is far below one item, so rounding either way would give nothing or far
+-- too much. Carrying makes the output uniform - one item every N deliveries, always -
+-- instead of the random trickle a probability roll produces, which players cannot tell
+-- apart from a broken mod. Whatever does not fit in a full depot goes back into the
+-- carry, so nothing is lost.
+function mining_depot:accept_mined_items(name, count)
+  if count <= 0 then return 0 end
+
+  local productivity = mining_technologies.get_productivity_bonus(self.force_index)
+  local with_productivity = count * (1 + productivity)
+
+  self.mined_total = (self.mined_total or 0) + count
+  self.mined_with_productivity = (self.mined_with_productivity or 0) + with_productivity
+
+  self.output_carry = self.output_carry or {}
+  local pending = (self.output_carry[name] or 0) + with_productivity * self:get_quality_multiplier()
+  local whole = floor(pending)
+  self.output_carry[name] = pending - whole
+
+  if whole <= 0 then return 0 end
+
+  local inserted = self:get_output_inventory().insert
+  {
+    name = name,
+    count = whole,
+    quality = self:get_recipe_quality()
+  }
+  self.output_carry[name] = self.output_carry[name] + (whole - inserted)
+  self.yielded_total = (self.yielded_total or 0) + inserted
+  return inserted
 end
 
 function mining_depot:get_max_output_amount()
@@ -1620,5 +1806,23 @@ lib.rescan_all_depots = function()
   rescan_all_depots(true)
 end
 lib.hide_pots = hide_pots
+lib.get_mining_depot = get_mining_depot
+lib.get_quality_cascade = function() return quality_cascade end
+
+-- Base defines a `normal` quality on its own and hides it; the tiers above it, and the
+-- locale keys naming any of them, come from the quality mod. So "is quality in play" means
+-- "is there more than one step in the chain", not "does a quality prototype exist".
+lib.is_quality_enabled = function()
+  local count = 0
+  for _ in pairs (get_quality_steps()) do
+    count = count + 1
+    if count > 1 then return true end
+  end
+  return false
+end
+
+lib.get_base_quality = function()
+  return prototypes.quality["normal"]
+end
 
 return lib

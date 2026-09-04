@@ -218,9 +218,10 @@ function lib:process_return_to_depot()
     return
   end
 
-  local target_inventory = depot:get_output_inventory()
-  local productivity_bonus = mining_technologies.get_productivity_bonus(self.force_index)
-
+  -- What the drone carries is raw, normal-quality ore. The depot decides what that turns
+  -- into: productivity is added, the quality penalty is applied, and the result is
+  -- inserted at the quality the recipe asks for - so the mined stack is accounted for
+  -- rather than moved.
   local item_flow = self.entity.force.get_item_production_statistics(self.entity.surface).on_flow
   for k = 1, #self.inventory do
     local stack = self.inventory[k]
@@ -228,25 +229,7 @@ function lib:process_return_to_depot()
       break
     end
     local name = stack.name
-    local quality = stack.quality and stack.quality.name
-    local inserted = target_inventory.insert(stack)
-
-    -- Mining productivity yields extra ore without costing the patch, so it is paid out
-    -- here on delivery rather than at mining time. It scales by what actually fit: a full
-    -- depot must not be credited for items it never received. The fractional part is
-    -- rolled per stack instead of truncated, so early research levels still pay out on
-    -- average rather than rounding away to nothing.
-    if inserted > 0 and productivity_bonus > 0 then
-      local extra = inserted * productivity_bonus
-      local whole = floor(extra)
-      if extra - whole > random() then
-        whole = whole + 1
-      end
-      if whole > 0 then
-        inserted = inserted + target_inventory.insert{name = name, count = whole, quality = quality}
-      end
-    end
-
+    local inserted = depot:accept_mined_items(name, stack.count)
     item_flow(name, inserted)
   end
 

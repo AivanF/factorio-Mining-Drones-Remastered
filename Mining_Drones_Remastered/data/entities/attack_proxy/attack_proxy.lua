@@ -247,7 +247,7 @@ local make_recipe = function(entity)
     allow_as_intermediate = false,
     allow_intermediates = false,
     allow_inserter_overload = false,
-    can_set_quality = false,
+    can_set_quality = true,
     auto_recycle = false,
     energy_required = 42,
   }
